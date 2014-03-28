@@ -1,8 +1,13 @@
 # HopHop
 
-TODO: Write a gem description
+HopHop is our (experteer's) small abstraction layer on top of Bunny to access our message queue.
+
+## Development
+
+The code is at http://gitlab.experteer.com/experteer/hop_hop/tree/master
 
 ## Installation
+
 
 Add this line to your application's Gemfile:
 
@@ -18,7 +23,11 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Set HopHop::Event.sender either to HopHop::BunnySender.new(:host => x, :port => y) or to HopHop::TestSender.new() in case of testing.
+Set HopHop::Event.receiver either to HopHop::BunnyReceiver.new(:host => x, :port => y) or to HopHop::TestReceiver.new() in case of testing.
+
+
+See http://trac.admin.experteer.com/trac/wiki/dev/Messagebus in our wiki.
 
 ## Contributing
 
