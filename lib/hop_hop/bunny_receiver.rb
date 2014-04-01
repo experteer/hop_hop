@@ -2,7 +2,14 @@ module HopHop
   #this class will bind to the events exchange, create the queue, receive messages from the queue, wrap them into HopHop::CustomEvent
   #and dispatch it to a HohHop::Cunsumer instance.
   class BunnyReceiver
+    class QueueInfo
+      attr_reader :message_count, :consumer_count
 
+      def initialize(message_count,consumer_count)
+        @consumer_count=consumer_count
+        @message_count=message_count
+      end
+    end
     #@param [Hash] options
     #@option options [String] :host the hostname of the rabbit mq server (localhost)
     #@option options [Integer] :port the port the rabbit mq server (5672)
@@ -22,6 +29,7 @@ module HopHop
       bind
 
       begin
+        stopping=false
         queue.subscribe(:block => true, :ack => true) do |delivery_info, properties, body|
           meta={
             :routing_key => delivery_info.routing_key,
@@ -32,12 +40,23 @@ module HopHop
             }
           }
           event=HopHop::ConsumeEvent.new(JSON.parse(body), meta)
+          info=QueueInfo.new(queue.message_count, queue.consumer_count)
+
           begin
-            consumer.consume(event)
+            begin
+              consumer.consume(event, info)
+            rescue HopHop::Consumer::ExitLoop
+              stopping=true
+            end
             channel.ack(delivery_info.delivery_tag)
           rescue Object => err #I really catch everything, even Timeout (not inherited from Exception)
             raise if err.kind_of?(Interrupt) #but Interrupts should still work
             logger.error("Consumer failed: #{err.message}\n#{err.backtrace.join("\n")}\n#{event.inspect}")
+          end
+           if stopping
+            logger.info("Consumer stopping")
+            delivery_info.consumer.cancel
+            clear_cached
           end
         end
       rescue Interrupt => _ #perhaps ensure is better here
@@ -51,15 +70,16 @@ module HopHop
 
     #this will bind to the exchange. As a sideffect it will establish the connection and create the queue
     def bind
-      consumer.class.bind.each do |event_pattern|
+      consumer.bindings.each do |event_pattern|
         queue.bind(exchange, :routing_key => event_pattern)
       end
       nil
     end
 
+
     #@note: don't call this before consumer is set
     def queue
-      @queue||=channel.queue(consumer.class.queue, :durable => true)
+      @queue||=channel.queue(consumer.queue, :durable => true)
     end
 
     def exchange
@@ -75,6 +95,10 @@ module HopHop
       @connection = Bunny.new(:host => @options[:host], :port => @options[:port])
       @connection.start
       @connection
+    end
+
+    def clear_cached
+      @queue=@connection=@channel=@exchange=nil
     end
   end
 end

@@ -5,6 +5,7 @@ module HopHop
   #After that it will run the consume loop to get one ConsumeEvent after the other.
   #@note A consumer is instantiated only once! So instance variables don't change between callbacks.
   class Consumer
+    class ExitLoop < Exception; end
 
     #@param [Hash] options options for the consumer
     def self.consume(options={})
@@ -19,6 +20,7 @@ module HopHop
     def self.receiver=(_receiver)
       @@receiver=_receiver
     end
+
     self.receiver=nil
 
     #This sets and gets the queue name the consumer will pop the messages.
@@ -49,6 +51,9 @@ module HopHop
       @event_names
     end
 
+    #options
+    #:bind override the bindings
+    #:queue override the queue name
     def initialize(options={})
       @options=options
       setup
@@ -69,5 +74,19 @@ module HopHop
       raise "please implement to consume method"
     end
 
+    #returns the bindings
+    def bindings
+      self.class.bind
+      #@options[:bind] || self.class.bind
+    end
+
+    def queue
+      self.class.queue
+      #@options[:queue] || self.class.queue
+    end
+
+    def exit_loop
+      raise ExitLoop
+    end
   end
 end
