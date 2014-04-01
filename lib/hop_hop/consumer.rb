@@ -5,7 +5,8 @@ module HopHop
   #After that it will run the consume loop to get one ConsumeEvent after the other.
   #@note A consumer is instantiated only once! So instance variables don't change between callbacks.
   class Consumer
-    class ExitLoop < Exception; end
+    class ExitLoop < Exception;
+    end
 
     #@param [Hash] options options for the consumer
     def self.consume(options={})
@@ -31,8 +32,17 @@ module HopHop
     #  class TestConsumer < HopHop::Consumer
     #    queue "crm_mails"
     #  end
-    def self.queue(queue_name=nil)
-      @queue_name ||= queue_name.to_s
+    def self.queue(queue_name=nil, options=nil)
+      if queue_name
+        @queue_options=options||{}
+        @queue_name = queue_name.to_s
+      else
+        @queue_name
+      end
+    end
+
+    def self.queue_options
+      @queue_options
     end
 
     #This sets and gets binding the queue will be connected to.
@@ -66,6 +76,15 @@ module HopHop
     def setup
     end
 
+    #This is called after the consumer is connected to the queue
+    def after_connect
+
+    end
+
+    def name
+      "#{self.class.to_s} (#{queue})"
+    end
+
     #This is the callback from the receiver. It will be called whenever a new message arrives.
     #@note If an exception is raised the messages will be put back into the queue (no ack) so
     # make sure you catch everything exception you want to accept.
@@ -81,8 +100,13 @@ module HopHop
     end
 
     def queue
-      self.class.queue
+      self.class.queue || ''
       #@options[:queue] || self.class.queue
+    end
+
+    def queue_options
+      self.class.queue_options
+      #@options[:queue_options] || self.class.queue_options
     end
 
     def exit_loop
