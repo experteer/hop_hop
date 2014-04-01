@@ -16,7 +16,8 @@ module HopHop
       meta[:routing_key] ||= "test.test"
 
       event=HopHop::ConsumeEvent.new(data, meta, context)
-      @consumer.consume(event)
+      info=HopHop::QueueInfo.new(3,4)
+      @consumer.consume(event,info)
     end
   end
 end

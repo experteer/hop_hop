@@ -1,15 +1,5 @@
 module HopHop
   class QueueConnection
-    class QueueInfo
-      attr_reader :message_count, :consumer_count
-
-      def initialize(message_count, consumer_count)
-        @consumer_count=consumer_count
-        @message_count=message_count
-      end
-    end
-
-
     def initialize(consumer, options={})
       @consumer=consumer
       @options=options
