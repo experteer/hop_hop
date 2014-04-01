@@ -13,7 +13,9 @@ module HopHop
     def initialize(consumer, options={})
       @consumer=consumer
       @options=options
+      @options[:prefetch] ||= 1
       @logger=options[:logger] || Logger.new(STDOUT)
+
       @exchange_name = options[:exchange] || 'events'
       bind #leave this here as on receiver.connect all bindings should be in place
     end
@@ -36,19 +38,24 @@ module HopHop
 
           begin
             begin
+              logger.debug("Consuming: #{consumer.name} - #{event.name} '#{delivery_info.delivery_tag}'")
               consumer.consume(event, info)
             rescue HopHop::Consumer::ExitLoop
               stopping=true
             end
+
+            logger.debug("Acknowledged: #{consumer.name} - #{event.name} '#{delivery_info.delivery_tag}'")
             channel.ack(delivery_info.delivery_tag)
           rescue Object => err #I really catch everything, even Timeout (not inherited from Exception)
             raise if err.kind_of?(Interrupt) #but Interrupts should still work
-            logger.error("Consumer failed: #{err.message}\n#{err.backtrace.join("\n")}\n#{event.inspect}")
+            logger.error("Consumer failed: #{consumer.name} #{err.message}\n#{err.backtrace.join("\n")}\n#{event.inspect}")
           end
+
           if stopping
-            logger.info("Consumer #{consumer.name} stopping")
+            logger.info("Stopping: #{consumer.name}")
             delivery_info.consumer.cancel
           end
+
         end
       rescue Interrupt => _ #perhaps ensure is better here
         logger.info("Consumer #{consumer.name} terminated")
@@ -85,7 +92,10 @@ module HopHop
     end
 
     def channel
-      @channel ||= connection.create_channel
+      return @channel if defined?(@channel)
+      @channel = connection.create_channel
+      @channel.prefetch(options[:prefetch])
+      @channel
     end
 
     def connection
