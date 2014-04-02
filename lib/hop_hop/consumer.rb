@@ -89,7 +89,8 @@ module HopHop
     #@note If an exception is raised the messages will be put back into the queue (no ack) so
     # make sure you catch everything exception you want to accept.
     #@param [HopHop::ConsumeEvent] consume_event The event you should take care of.
-    def consume(consume_event)
+    #@param [HopHop::QueueInfo] some infos on the queue status
+    def consume(consume_event, info)
       raise "please implement to consume method"
     end
 

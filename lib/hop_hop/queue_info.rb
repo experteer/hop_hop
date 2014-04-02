@@ -1,10 +1,15 @@
 module HopHop
-  class QueueInfo
-    attr_reader :message_count, :consumer_count
 
-    def initialize(message_count, consumer_count)
-      @consumer_count=consumer_count
-      @message_count=message_count
+  #this is the info that is returned to the consumer on every event, it gives a small interface to the queue
+
+  class QueueInfo
+    def initialize(queue_connection)
+      @queue_connection=queue_connection
     end
+
+    def message_count
+      @queue_connection.queue.message_count
+    end
+
   end
 end

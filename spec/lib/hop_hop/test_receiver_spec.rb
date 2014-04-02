@@ -19,7 +19,6 @@ describe HopHop::TestReceiver do
       event.context.should == :context
       event.producer.should == 'recruiting'
       event.version.should == 1
-      info.consumer_count.should == 4
       info.message_count.should == 3
     end
     consumer.consume(:blogic => blogic)

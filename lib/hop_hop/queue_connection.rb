@@ -24,7 +24,7 @@ module HopHop
             }
           }
           event=HopHop::ConsumeEvent.new(JSON.parse(body), meta)
-          info=QueueInfo.new(queue.message_count, queue.consumer_count)
+          info=QueueInfo.new(self)
 
           begin
             begin
@@ -51,6 +51,7 @@ module HopHop
         logger.info("Consumer #{consumer.name} terminated")
         channel.close
         connection.close
+        raise #so you can stop your scripts
       end
       stopping
     end
@@ -64,8 +65,6 @@ module HopHop
       nil
     end
 
-
-    private
     attr_reader :consumer, :logger, :options
 
 

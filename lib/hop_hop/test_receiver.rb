@@ -4,6 +4,11 @@ module HopHop
   #TestConsumer.consume
   #fire an event at will: TestConsumer.receiver.receive_event({:foo => :bar},{:timestamp => Time.now.to_i})
   class TestReceiver
+    class TestQueueInfo
+      def message_count
+        3
+      end
+    end
     def consume(consumer)
       @consumer=consumer
     end
@@ -16,7 +21,7 @@ module HopHop
       meta[:routing_key] ||= "test.test"
 
       event=HopHop::ConsumeEvent.new(data, meta, context)
-      info=HopHop::QueueInfo.new(3,4)
+      info=TestQueueInfo.new
       @consumer.consume(event,info)
     end
   end
