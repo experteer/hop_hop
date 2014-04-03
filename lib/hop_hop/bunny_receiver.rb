@@ -28,8 +28,7 @@ module HopHop
     def connect(consumer)
       qc=QueueConnection.new(consumer,
                              :host => options[:host],
-                             :port => options[:port],
-                             :logger => @logger
+                             :port => options[:port]
       )
       consumer.after_connect
       qc

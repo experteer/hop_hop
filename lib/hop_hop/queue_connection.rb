@@ -4,7 +4,6 @@ module HopHop
       @consumer=consumer
       @options=options
       @options[:prefetch] ||= 1
-      @logger=options[:logger] || Logger.new(STDOUT)
 
       @exchange_name = options[:exchange] || 'events'
       bind #leave this here as on receiver.connect all bindings should be in place
@@ -38,6 +37,7 @@ module HopHop
             channel.ack(delivery_info.delivery_tag)
           rescue Object => err #I really catch everything, even Timeout (not inherited from Exception)
             raise if err.kind_of?(Interrupt) #but Interrupts should still work
+            #puts "Consumer failed: #{consumer.name} #{err.message}\n#{err.backtrace.join("\n")}\n#{event.inspect}"
             logger.error("Consumer failed: #{consumer.name} #{err.message}\n#{err.backtrace.join("\n")}\n#{event.inspect}")
           end
 
@@ -65,8 +65,12 @@ module HopHop
       nil
     end
 
-    attr_reader :consumer, :logger, :options
+    attr_reader :consumer, :options
 
+    #we're always logging to the consumer's logger
+    def logger
+      consumer.logger
+    end
 
     #@note: don't call this before consumer is set
     def queue

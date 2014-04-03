@@ -64,12 +64,14 @@ module HopHop
     #options
     #:bind override the bindings
     #:queue override the queue name
+    #:logger
     def initialize(options={})
       @options=options
+      @logger=options[:logger] || Logger.new(STDOUT)
       setup
     end
 
-    attr_reader :options
+    attr_reader :options, :logger
 
     #This is called befor the event loop is entered so you can set up some instance vars.
     #Just override it in your inherited class.
@@ -113,5 +115,6 @@ module HopHop
     def exit_loop
       raise ExitLoop
     end
+
   end
 end
