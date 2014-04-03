@@ -1,5 +1,6 @@
 require "bundler/gem_tasks"
 
+desc 'run specs'
 task :specs do
   opts = ['rspec', '-c']
   opts += ["--require", File.join(File.dirname(__FILE__), 'spec', 'spec_helper')]
@@ -16,6 +17,9 @@ task :specs do
 end
 task :spec => :specs
 
-task :gem_release do
-  puts "gem build hop_hop.gemspec; gem inabox hop_hop-#{HopHop::VERSION}"
+desc 'build gem and push to gem inabox'
+task :gem_inabox_release do
+  cmd= "gem build hop_hop.gemspec; gem inabox hop_hop-#{HopHop::VERSION}"
+  puts cmd if Rake.application.options.trace
+  system(cmd)
 end

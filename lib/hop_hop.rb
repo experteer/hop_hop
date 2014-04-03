@@ -1,3 +1,4 @@
+require "hop_hop/helper"
 require "hop_hop/version"
 require "hop_hop/bunny_sender"
 require "hop_hop/bunny_receiver"
