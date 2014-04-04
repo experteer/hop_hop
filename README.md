@@ -29,9 +29,43 @@ Set HopHop::Event.receiver either to HopHop::BunnyReceiver.new(:host => x, :port
 
 See http://trac.admin.experteer.com/trac/wiki/dev/Messagebus in our wiki.
 
+### The consumer ###
+
+    class TestConsumer < HopHop::Consumer
+      queue "pjpp_testconsumer" # the queue name, don't set this if you want to have excluse,temporary queues
+      bind "career.test.#","career.othertest.*"  # bind to event(s)
+      bind "career.testing"                      # multiple lines are possible
+
+      def on_init                                # this is called after initialize
+        logger.debug "debug"
+        logger.info "info"
+        @error_count=0                           
+      end
+  
+      def on_bind                                # this is called after the binding to the queue but before consume
+        loger.info("I'm bound yeah!")
+      end
+  
+      def on_error(err)                          # this is called when consume raises an exception, retu
+         @error_count +=1                        # it should return one of :ignore, :exit (default), :requeue
+         if @error_count == 5                    # :requeue is dangerous so the loop will wait some seconds before it 
+           :exit #the default                    # continues
+         else
+           :ignore
+         end
+      end
+
+      def consume(consume_event, info)           #the meat of the consumer
+        logger.info "consuming: #{consume_event.data.inspect} "
+        exit_loop if consume_event.data["exit"]                        #you can exit the loop
+        raise "I was forced to raise" if consume_event.data["error"]   #or raise errors (your on_error handler will be called back
+      end
+    end
+
+
 ## Contributing
 
-1. Fork it ( http://github.com/<my-github-username>/hop_hop/fork )
+1. Fork it ( http://gitlab.admin.experteer.com/<my-github-username>/hop_hop/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

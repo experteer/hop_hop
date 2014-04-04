@@ -68,19 +68,25 @@ module HopHop
     def initialize(options={})
       @options=options
       @logger=options[:logger] || Logger.new(STDOUT)
-      setup
+      on_init
     end
 
     attr_reader :options, :logger
 
-    #This is called befor the event loop is entered so you can set up some instance vars.
+    #This is called befor the event loop is entered but before it's bound to the queue so you can set up some instance vars.
     #Just override it in your inherited class.
-    def setup
+    def on_init
     end
 
-    #This is called after the consumer is connected to the queue
-    def after_connect
+    #This is called after the consumer is bound to the queue
+    def on_bind
 
+    end
+
+    #this should return one of :ignore, :requeue, :exit
+    #if it requeues it can also do a sleep if ot wants to or increase a counter and exit, ...
+    def on_error(exception)
+      :exit
     end
 
     def name

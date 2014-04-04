@@ -19,7 +19,7 @@ module HopHop
     #@return [Boolean] true if loop was stopped with exit_loop, false if Interrupt was raised
     def consume(consumer)
       qc=connect(consumer)
-      logger.debug "Looping: #{consumer.name}"
+      logger.debug "Consumer looping: #{consumer.name}"
       qc.loop #this runs the loop and only exists on Interrupts or #exit_loop
     end
 
@@ -30,7 +30,7 @@ module HopHop
                              :host => options[:host],
                              :port => options[:port]
       )
-      consumer.after_connect
+      consumer.on_bind
       qc
     end
   end
