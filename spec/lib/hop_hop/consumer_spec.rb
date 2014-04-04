@@ -8,10 +8,15 @@ describe HopHop::Consumer do
       bind "career.test2", "career.test3"
       queue "career_queue_test"
 
-      def setup
+      def on_init
         options[:callback].setup_ok
       end
-
+      
+      def on_bind
+      end
+      
+      def on_error(exeption)
+      end
 
     end
   }
@@ -23,7 +28,7 @@ describe HopHop::Consumer do
     consumer.queue.should == 'career_queue_test'
   end
 
-  it "should call setup on init (implizit testing options)" do
+  it "should call on_init on init (implizit testing options)" do
     callback.should_receive(:setup_ok)
     consumer.new(:callback => callback)
   end

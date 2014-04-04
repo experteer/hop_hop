@@ -8,7 +8,14 @@ describe HopHop::TestReceiver do
       queue "career_queue_test"
 
       def consume(event,info)
-        options[:blogic].event(event,info)
+        case 
+          when event.data[:error]
+          raise "ups"
+          when event.data[:exit]
+          exit_loop
+          else
+           options[:blogic].event(event,info)
+        end
       end
     end
   }
@@ -23,5 +30,13 @@ describe HopHop::TestReceiver do
     end
     consumer.consume(:blogic => blogic)
     consumer.receiver.receive_event({:ok => :foo}, {:headers => {:producer => 'recruiting'}}, :context)
+  end
+  
+  it "should callback on_error on an exception" do
+    consumer_instance=consumer.consume
+    consumer_instance.should_receive(:on_error) do |exception|
+         exception.message.should == "ups"
+    end
+    consumer.receiver.receive_event({:error => true}, {:headers => {:producer => 'recruiting'}}, :context)    
   end
 end

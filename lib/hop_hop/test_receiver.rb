@@ -11,6 +11,8 @@ module HopHop
     end
     def consume(consumer)
       @consumer=consumer
+      @consumer.on_bind
+      @consumer
     end
 
     def receive_event(data, meta={}, context=nil)
@@ -22,7 +24,11 @@ module HopHop
 
       event=HopHop::ConsumeEvent.new(data, meta, context)
       info=TestQueueInfo.new
-      @consumer.consume(event,info)
+      begin
+        @consumer.consume(event,info)
+      rescue StandardError => err #this is not like real exception handling!
+        @consumer.on_error(err)
+      end
     end
   end
 end
