@@ -8,7 +8,8 @@ module HopHop
     class ExitLoop < Exception;
     end
 
-    #@param [Hash] options options for the consumer
+    # @param [Hash] options options for the consumer
+    # @return [Boolean] true if exit_loop was called, false if loop was exited because of an error
     def self.consume(options={})
       receiver.consume(new(options))
     end

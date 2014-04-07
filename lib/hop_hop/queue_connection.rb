@@ -11,7 +11,8 @@ module HopHop
 
     #@return [Boolean] true if exit_loop was called and false if interrupted
     def loop
-      @stopping=false
+      @stopping=false #this can also be set by the call_consumer method
+      normal_exit=true
       begin
         queue.subscribe(:block => true, :ack => true) do |delivery_info, properties, body|
           begin
@@ -24,6 +25,7 @@ module HopHop
                 'ignored'
               when :exit
                 channel.reject(delivery_info.delivery_tag, true) # requeue and stop
+                normal_exit=false
                 @stopping=true
                 'exiting'
               when :requeue
@@ -33,6 +35,7 @@ module HopHop
               else
                 channel.reject(delivery_info.delivery_tag, true) # requeue and stop
                 @stopping=true
+                normal_exit=false
                 'unknown error strategy'
             end
 
@@ -53,7 +56,7 @@ module HopHop
         connection.close
       end
 
-      @stopping
+      normal_exit
     end
 
     def call_consumer(delivery_info, properties, body)
