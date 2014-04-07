@@ -19,7 +19,7 @@ task :spec => :specs
 
 desc 'build gem and push to gem inabox'
 task :gem_inabox_release do
-  cmd= "gem build hop_hop.gemspec; gem inabox hop_hop-#{HopHop::VERSION}"
+  cmd= "gem build hop_hop.gemspec; gem inabox hop_hop-#{HopHop::VERSION}.gem"
   puts cmd if Rake.application.options.trace
   system(cmd)
 end
