@@ -29,7 +29,7 @@ module HopHop
       if method(:const_defined?).arity == 1
         mod.const_defined?(const) # <= ruby 1.8.7
       else
-        mode.const_defined?(const, false) # Ruby 1.9>
+        mod.const_defined?(const, false) # Ruby 1.9>
       end
     end
 
