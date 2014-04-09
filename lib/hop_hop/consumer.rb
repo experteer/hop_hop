@@ -123,5 +123,12 @@ module HopHop
       raise ExitLoop
     end
 
+    private
+    def self.inherited subclass
+      subclass.bind(@event_names.dup) if @event_names
+      subclass.queue(
+        @queue_name.nil? ? nil : @queue_name.dup,
+        @queue_options.nil? ? nil : @queue_options.dup)
+    end
   end
 end

@@ -1,5 +1,16 @@
 require 'spec_helper'
 
+class ConsumerA < HopHop::Consumer
+  bind "career.consumerA"
+end
+class ConsumerB < ConsumerA
+  bind "career.consumerB"
+end
+class ConsumerC < ConsumerB
+  bind "career.consumerC"
+end
+
+
 describe HopHop::Consumer do
   let(:callback) { double }
   let(:consumer) {
@@ -11,10 +22,10 @@ describe HopHop::Consumer do
       def on_init
         options[:callback].setup_ok
       end
-      
+
       def on_bind
       end
-      
+
       def on_error(exeption)
       end
 
@@ -33,5 +44,51 @@ describe HopHop::Consumer do
     consumer.new(:callback => callback)
   end
 
+  context "on inheritance" do
+    let(:inherited_consumer) {
+      Class.new(consumer) do
+        bind "career.test4"
+      end
+    }
+    it "should inherit the bindings from the parent class" do
+      ["career", "career.test2", "career.test3"].each do |b|
+        expect(inherited_consumer.bind).to include(b)
+      end
+    end
+    it "should be set the bindings from the class itself" do
+      expect(inherited_consumer.bind).to include("career.test4")
+    end
+    it "should inherit the queue from the parent class" do
+      expect(inherited_consumer.queue).to eql("career_queue_test")
+    end
+    it "should not change bindings on the parent class" do
+      consumer # because let is lazy
+      expect{
+        Class.new(consumer) do
+          bind "career.test4"
+        end
+      }.to_not change{consumer.bind}
+    end
+
+    # 1.8.7 does some wierd things with the inherited callback on dynamically
+    # created classes so run some more tests on static classes
+    it "should set bindings for ConsumerA" do
+      expect(ConsumerA.bind).to eql(["career.consumerA"])
+    end
+    it "should set bindings for ConsumerB" do
+      expect(ConsumerB.bind).to include("career.consumerB")
+    end
+    it "should inherit bindings for ConsumerB from ConsumerA" do
+      expect(ConsumerB.bind).to include("career.consumerA")
+    end
+    it "should set bindings for ConsumerA" do
+      expect(ConsumerC.bind).to include("career.consumerC")
+    end
+    it "should inherit bindings for ConsumerC from ConsumerA & ConsumerB" do
+      expect(ConsumerC.bind).to include("career.consumerA")
+      expect(ConsumerC.bind).to include("career.consumerB")
+    end
+
+  end
 
 end
