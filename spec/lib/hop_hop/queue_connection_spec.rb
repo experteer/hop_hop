@@ -37,6 +37,7 @@ describe HopHop::QueueConnection, :rabbitmq do
 
     # put a message in the queue
     TestEvent.send('queue_connector_test', 1, {:error => true})
+    sleep(0.2)#lets wait a bit for the message to arrive in the queue
   end
   after(:each) do
     #reestablish connection to queue and purge it before moving on
