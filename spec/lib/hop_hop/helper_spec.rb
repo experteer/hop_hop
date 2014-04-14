@@ -15,4 +15,12 @@ describe HopHop::Helper do
     HopHop::Helper.constantize("Math::PI").should == Math::PI
     HopHop::Helper.constantize("IO::SYNC").should == IO::SYNC
   end
+
+  it "should slice a hash" do
+    tmp = {:foo => 1, :bar => 2, :baz => 'lorem'}
+    expect(HopHop::Helper.slice_hash(tmp, :foo, :bar)).to include(:foo => 1, :bar => 2)
+    expect(HopHop::Helper.slice_hash(tmp, :foo, :bar)).to_not include(:baz => 'lorem')
+    expect(HopHop::Helper.slice_hash(tmp, :bar, :baz)).to include(:bar => 2, :baz => 'lorem')
+    expect(HopHop::Helper.slice_hash(tmp, :bar, :baz)).to_not include(:foo => 1)
+  end
 end

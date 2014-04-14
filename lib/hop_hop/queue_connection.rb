@@ -122,7 +122,7 @@ module HopHop
 
     def connection
       return @connection if defined?(@connection)
-      @connection = Bunny.new(:host => @options[:host], :port => @options[:port])
+      @connection = Bunny.new(Helper.slice_hash(@options, :host, :port, :virtual_host))
       @connection.start
       @connection
     end
