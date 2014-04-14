@@ -67,7 +67,7 @@ module HopHop
       end
 
       logger.debug("Consumer acknowledged: #{consumer.name} - #{event.name} '#{delivery_info.delivery_tag}'")
-      channel.ack(delivery_info.delivery_tag)
+      acknowledge_message(delivery_info)
       event #return event in case of errors
     end
 
@@ -151,12 +151,15 @@ module HopHop
       return normal_exit
     end
 
+    # Reject Message and requeue it
     def requeue_message(delivery_info)
       channel.reject(delivery_info.delivery_tag, true)
     end
 
+    # Acknowledge message
+    # don't acknowledge other older unack'ed messages
     def acknowledge_message(delivery_info)
-      channel.ack(delivery_info.delivery_tag, false)
+      channel.ack(delivery_info.delivery_tag)
     end
 
     def exit_loop?
