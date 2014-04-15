@@ -23,3 +23,5 @@ task :gem_inabox_release do
   puts cmd if Rake.application.options.trace
   system(cmd)
 end
+
+task :default => :spec
