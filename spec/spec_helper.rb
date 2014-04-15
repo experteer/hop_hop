@@ -10,8 +10,8 @@ require 'hop_hop'
 require 'hop_hop/test'
 require 'timecop'
 
-HopHop::Event.sender=HopHop::TestSender.new
-HopHop::Consumer.receiver=HopHop::TestReceiver.new
+HopHop::Event.sender = HopHop::TestSender.new
+HopHop::Consumer.receiver = HopHop::TestReceiver.new
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
@@ -24,9 +24,9 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   #     --seed 1234
   config.order = 'random'
-  
+
   config.before do
-    HopHop::Event.sender.reset if HopHop::Event.sender.respond_to?(:reset)#throw away all events
-    HopHop::Event.producer_prefix='localhost.9999'
+    HopHop::Event.sender.reset if HopHop::Event.sender.respond_to?(:reset)# throw away all events
+    HopHop::Event.producer_prefix = 'localhost.9999'
   end
 end

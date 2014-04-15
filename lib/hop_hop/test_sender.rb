@@ -1,5 +1,5 @@
 module HopHop
-  #This can be used in a test environment to see whats pushed into the queue.
+  # This can be used in a test environment to see whats pushed into the queue.
   class TestSender
     def initialize
       reset
@@ -10,7 +10,7 @@ module HopHop
     end
 
     def reset
-      @events=[]
+      @events = []
     end
 
     def size
@@ -21,9 +21,8 @@ module HopHop
       @events.empty?
     end
 
-    def [](num) #don't know how to delegate this
+    def [](num) # don't know how to delegate this
       @events[num]
     end
-
   end
 end
