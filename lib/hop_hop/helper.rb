@@ -59,5 +59,12 @@ module HopHop
       end
     end
 
+    # File activesupport/lib/active_support/core_ext/hash/slice.rb, line 15
+    def self.slice_hash(hash, *keys)
+      keys.map! { |key| hash.convert_key(key) } if respond_to?(:convert_key, true)
+      keys.each_with_object(hash.class.new) { |k, agg| agg[k] = hash[k] if hash.has_key?(k) }
+    end
+
+
   end #module Helper
 end #module HopHop

@@ -27,9 +27,7 @@ module HopHop
     attr_reader :options, :logger
     def connect(consumer)
       qc=QueueConnection.new(consumer,
-                             :host => options[:host],
-                             :port => options[:port]
-      )
+        Helper.slice_hash(options, :host, :port, :virtual_host))
       consumer.on_bind
       qc
     end
