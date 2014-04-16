@@ -121,7 +121,6 @@ module HopHop
       fail ExitLoop
     end
 
-  private
     def self.inherited(subclass)
       subclass.bind(@event_names.dup) if @event_names
       subclass.queue(

@@ -25,6 +25,11 @@ SpaceBeforeBlockBraces:
 SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
 
+
+PerlBackrefs:
+  Description: 'Avoid Perl-style regex back references.'
+  Enabled: false
+
 #SpaceInsideBlockBraces:
 #  EnforcedStyle: no_space
 #  SupportedStyles:
