@@ -4,13 +4,13 @@ describe HopHop::TestReceiver do
   let(:blogic){ double }
   let(:consumer) do
     Class.new(HopHop::Consumer) do
-      bind 'career.test3'
-      queue 'career_queue_test'
+      bind "career.test3"
+      queue "career_queue_test"
 
       def consume(event, info)
         case
           when event.data[:error]
-            fail 'ups'
+            raise "ups"
           when event.data[:exit]
             exit_loop
           else
@@ -19,7 +19,7 @@ describe HopHop::TestReceiver do
       end
     end
   end
-  it 'should receive an event' do
+  it "should receive an event" do
     now = Time.now
     blogic.should_receive(:event) do |event, info|
       event.data.should == { :ok => :foo }
@@ -32,10 +32,10 @@ describe HopHop::TestReceiver do
     consumer.receiver.receive_event({ :ok => :foo }, { :headers => { :producer => 'recruiting' } }, :context)
   end
 
-  it 'should callback on_error on an exception' do
+  it "should callback on_error on an exception" do
     consumer_instance = consumer.consume
     consumer_instance.should_receive(:on_error) do |exception|
-      exception.message.should == 'ups'
+      exception.message.should == "ups"
     end
     consumer.receiver.receive_event({ :error => true }, { :headers => { :producer => 'recruiting' } }, :context)
   end

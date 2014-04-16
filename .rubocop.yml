@@ -30,6 +30,17 @@ PerlBackrefs:
   Description: 'Avoid Perl-style regex back references.'
   Enabled: false
 
+StringLiterals:
+  Enabled: false
+  EnforcedStyle: double_quotes
+
+CollectionMethods:
+  Enabled: false
+
+# http://www.ruby-doc.org/core-2.1.1/Kernel.html#method-i-fail
+SignalException:
+    EnforcedStyle: only_raise
+
 #SpaceInsideBlockBraces:
 #  EnforcedStyle: no_space
 #  SupportedStyles:

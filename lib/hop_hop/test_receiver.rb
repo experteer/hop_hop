@@ -17,10 +17,10 @@ module HopHop
 
     def receive_event(data, meta={}, context=nil)
       meta[:headers] ||= {}
-      meta[:headers][:producer] ||= 'test_producer'
+      meta[:headers][:producer] ||= "test_producer"
       meta[:headers][:version] ||= 1
       meta[:timestamp] ||= Time.now.to_i
-      meta[:routing_key] ||= 'test.test'
+      meta[:routing_key] ||= "test.test"
 
       event = HopHop::ConsumeEvent.new(data, meta, context)
       info = TestQueueInfo.new

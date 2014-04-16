@@ -7,12 +7,12 @@ describe HopHop::QueueConnection, :rabbitmq do
   end
 
   class TestConsumer < HopHop::Consumer
-    bind 'test.queue_connector_test'
-    queue 'test_queue_test'
+    bind "test.queue_connector_test"
+    queue "test_queue_test"
 
     def consume(event, info)
       if event.data['error']
-        fail 'whatever'
+        raise 'whatever'
       elsif event.data['exit']
         exit_loop
       else
@@ -27,7 +27,7 @@ describe HopHop::QueueConnection, :rabbitmq do
   class TestEvent < HopHop::Event
   private
     def subsystem
-      'test'
+      "test"
     end
   end
 
@@ -49,7 +49,7 @@ describe HopHop::QueueConnection, :rabbitmq do
 #------------------------------ specs start here ------------------------------#
 #------------------------------------------------------------------------------#
 
-  context 'consumer' do
+  context "consumer" do
     before(:each) do
       # put some messages in the queue
       TestEvent.send('queue_connector_test', 1, :exit => true)
@@ -57,31 +57,31 @@ describe HopHop::QueueConnection, :rabbitmq do
       sleep(0.25)# lets wait a bit for the message to arrive in the queue
     end
     let(:consumer_klass){ TestConsumer }
-    it 'should call the consumer' do
+    it "should call the consumer" do
       expect(@qc).to receive(:call_consumer)
       @qc.loop
     end
-    it 'should consume the event in the consumer' do
+    it "should consume the event in the consumer" do
       expect(consumer).to receive(:consume)
       @qc.loop
     end
-    it 'should call exit_loop' do
+    it "should call exit_loop" do
       expect(@qc).to receive(:exit_loop!)
       @qc.loop
     end
-    it 'should acknowledge' do
+    it "should acknowledge" do
       expect(@qc).to receive(:acknowledge_message)
       @qc.loop
     end
   end
-  context 'error handling' do
+  context "error handling" do
     before(:each) do
       # put some messages in the queue
       TestEvent.send('queue_connector_test', 1, :error => true, :token => 'test1')
       TestEvent.send('queue_connector_test', 1, :error => true, :token => 'test2')
       sleep(0.25)# lets wait a bit for the message to arrive in the queue
     end
-    context 'on error => ignore' do
+    context "on error => ignore" do
       let(:consumer_klass) do
         Class.new(TestConsumer) do
           def on_error(*args)
@@ -90,24 +90,24 @@ describe HopHop::QueueConnection, :rabbitmq do
         end
       end
 
-      it 'should acknowledge the message' do
+      it "should acknowledge the message" do
         expect(@qc).to receive(:acknowledge_message)
         @qc.loop
       end
-      it 'should not requeue the message' do
+      it "should not requeue the message" do
         expect(@qc).to_not receive(:requeue_message)
         @qc.loop
       end
-      it 'should exit normally' do
+      it "should exit normally" do
         expect(@qc.loop).to be_true
       end
-      it 'should not stop the loop' do
+      it "should not stop the loop" do
         expect(@qc).to_not receive(:exit_loop!)
         @qc.loop
       end
     end
 
-    context 'on error -> exit' do
+    context "on error -> exit" do
       let(:consumer_klass) do
         Class.new(TestConsumer) do
           def on_error(*args)
@@ -116,24 +116,24 @@ describe HopHop::QueueConnection, :rabbitmq do
         end
       end
 
-      it 'should not acknowledge the message' do
+      it "should not acknowledge the message" do
         expect(@qc).to_not receive(:acknowledge_message)
         @qc.loop
       end
-      it 'should requeue the message' do
+      it "should requeue the message" do
         expect(@qc).to receive(:requeue_message)
         @qc.loop
       end
-      it 'should not exit normally' do
+      it "should not exit normally" do
         expect(@qc.loop).to be_false
       end
-      it 'should stop the loop' do
+      it "should stop the loop" do
         expect(@qc).to receive(:exit_loop!).at_least(1)
         @qc.loop
       end
     end
 
-    context 'on error -> requeue' do
+    context "on error -> requeue" do
       let(:consumer_klass) do
         Class.new(TestConsumer) do
           def on_error(*args)
@@ -142,24 +142,24 @@ describe HopHop::QueueConnection, :rabbitmq do
         end
       end
 
-      it 'should not acknowledge the message' do
+      it "should not acknowledge the message" do
         expect(@qc).to_not receive(:acknowledge_message)
         @qc.loop
       end
-      it 'should requeue the message' do
+      it "should requeue the message" do
         expect(@qc).to receive(:requeue_message)
         @qc.loop
       end
-      it 'should exit normally' do
+      it "should exit normally" do
         expect(@qc.loop).to be_true
       end
-      it 'should not stop the loop' do
+      it "should not stop the loop" do
         expect(@qc).to_not receive(:exit_loop!)
         @qc.loop
       end
     end
 
-    context 'on error -> unknown' do
+    context "on error -> unknown" do
       let(:consumer_klass) do
         Class.new(TestConsumer) do
           def on_error(*args)
@@ -168,18 +168,18 @@ describe HopHop::QueueConnection, :rabbitmq do
         end
       end
 
-      it 'should not acknowledge the message' do
+      it "should not acknowledge the message" do
         expect(@qc).to_not receive(:acknowledge_message)
         @qc.loop
       end
-      it 'should requeue the message' do
+      it "should requeue the message" do
         expect(@qc).to receive(:requeue_message)
         @qc.loop
       end
-      it 'should not exit normally' do
+      it "should not exit normally" do
         expect(@qc.loop).to be_false
       end
-      it 'should stop the loop' do
+      it "should stop the loop" do
         expect(@qc).to receive(:exit_loop!)
         @qc.loop
       end

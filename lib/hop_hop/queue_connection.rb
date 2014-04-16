@@ -51,8 +51,8 @@ module HopHop
         :routing_key => delivery_info.routing_key,
         :timestamp   => properties.timestamp,
         :headers     => {
-          :producer => properties.headers['producer'],
-          :version  => properties.headers['version']
+          :producer => properties.headers["producer"],
+          :version  => properties.headers["version"]
         }
       }
       event = HopHop::ConsumeEvent.new(JSON.parse(body), meta)

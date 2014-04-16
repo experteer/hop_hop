@@ -98,7 +98,7 @@ module HopHop
     # @param [HopHop::ConsumeEvent] consume_event The event you should take care of.
     # @param [HopHop::QueueInfo] some infos on the queue status
     def consume(consume_event, info)
-      fail 'please implement to consume method'
+      raise "please implement to consume method"
     end
 
     # returns the bindings
@@ -118,9 +118,10 @@ module HopHop
     end
 
     def exit_loop
-      fail ExitLoop
+      raise ExitLoop
     end
 
+  private
     def self.inherited(subclass)
       subclass.bind(@event_names.dup) if @event_names
       subclass.queue(

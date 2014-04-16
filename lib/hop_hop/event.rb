@@ -69,7 +69,7 @@ module HopHop
 
     # you should override this! in your inherted class
     def subsystem
-      'unknown'
+      "unknown"
     end
 
     def sender
