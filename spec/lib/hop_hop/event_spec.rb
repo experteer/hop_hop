@@ -5,9 +5,9 @@ describe HopHop::Event do
     HopHop::Event.producer_prefix = 'hostname.123'
   end
 
-  let(:data) { { integer: 1, string: 'String', array: [1, 2, 3], time: Time.now } }
-  let(:data_json) { data.to_json }
-  let(:event) { HopHop::Event.new('the.routing.key', 23, data) }
+  let(:data){ { :integer => 1, :string => 'String', :array => [1, 2, 3], :time => Time.now } }
+  let(:data_json){ data.to_json }
+  let(:event){ HopHop::Event.new('the.routing.key', 23, data) }
 
   describe 'header' do
     it 'should have a producer' do
@@ -43,12 +43,12 @@ describe HopHop::Event do
     it 'should add the meta data' do
       now = Timecop.freeze
       HopHop::Event.sender.should_receive(:publish).with(anything,
-                                                         routing_key: event.name,
-                                                         persistent: true,
-                                                         timestamp: now.to_i,
-                                                         headers: {
-                                                           producer: event.producer,
-                                                           version: event.version
+                                                         :routing_key => event.name,
+                                                         :persistent  => true,
+                                                         :timestamp   => now.to_i,
+                                                         :headers     => {
+                                                           :producer => event.producer,
+                                                           :version  => event.version
                                                           }
                                                          )
       event.send
@@ -64,7 +64,7 @@ describe HopHop::Event do
   end
 
   describe 'testability' do # TODO: I should move this out to HopHop::TestSender specs
-    let(:testex) { HopHop::TestSender.new }
+    let(:testex){ HopHop::TestSender.new }
     before do
       HopHop::Event.sender = testex
     end

@@ -15,7 +15,7 @@ module HopHop
       @consumer
     end
 
-    def receive_event(data, meta = {}, context = nil)
+    def receive_event(data, meta={}, context=nil)
       meta[:headers] ||= {}
       meta[:headers][:producer] ||= 'test_producer'
       meta[:headers][:version] ||= 1

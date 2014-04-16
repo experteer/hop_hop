@@ -52,11 +52,11 @@ module HopHop
 
     def meta
       {
-        routing_key: name,
-        persistent: true,
-        timestamp: sent_at.to_i,
-        headers: { producer: producer,
-                   version: version
+        :routing_key => name,
+        :persistent  => true,
+        :timestamp   => sent_at.to_i,
+        :headers     => { :producer => producer,
+                          :version  => version
         }
       }
     end
@@ -65,7 +65,7 @@ module HopHop
       "#{self.class.producer_prefix}.#{subsystem}"
     end
 
-    private
+  private
 
     # you should override this! in your inherted class
     def subsystem

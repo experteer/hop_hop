@@ -9,7 +9,7 @@ module HopHop
 
     # @param [Hash] options options for the consumer
     # @return [Boolean] true if exit_loop was called, false if loop was exited because of an error
-    def self.consume(options = {})
+    def self.consume(options={})
       receiver.consume(new(options))
     end
 
@@ -32,7 +32,7 @@ module HopHop
     #  class TestConsumer < HopHop::Consumer
     #    queue "crm_mails"
     #  end
-    def self.queue(queue_name = nil, options = nil)
+    def self.queue(queue_name=nil, options=nil)
       if queue_name
         @queue_options = options || {}
         @queue_name = queue_name.to_s
@@ -65,7 +65,7 @@ module HopHop
     #:bind override the bindings
     #:queue override the queue name
     #:logger
-    def initialize(options = {})
+    def initialize(options={})
       @options = options
       @logger = options[:logger] || Logger.new(STDOUT)
       on_init
@@ -121,7 +121,7 @@ module HopHop
       fail ExitLoop
     end
 
-    private
+  private
     def self.inherited(subclass)
       subclass.bind(@event_names.dup) if @event_names
       subclass.queue(

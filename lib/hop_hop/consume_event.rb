@@ -6,7 +6,7 @@ module HopHop
     # @param data Hash is the data that you sent
     # @param meta Hash of the meta data that was sent, this object will give you some readers to it
     # @param context Object something the receiver can set to have a reference for later
-    def initialize(data, meta, context = nil)
+    def initialize(data, meta, context=nil)
       @data = data
       @meta = meta
       @context = context

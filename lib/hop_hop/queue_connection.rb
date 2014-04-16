@@ -2,7 +2,7 @@ module HopHop
   class QueueConnection
     attr_reader :consumer, :options
 
-    def initialize(consumer, options = {})
+    def initialize(consumer, options={})
       @consumer = consumer
       @options = options
       @options[:prefetch] ||= 1
@@ -24,7 +24,7 @@ module HopHop
       # @stopping=false #this can also be set by the call_consumer method
       normal_exit = true
       begin
-        queue.subscribe(block: true, ack: true) do |delivery_info, properties, body|
+        queue.subscribe(:block => true, :ack => true) do |delivery_info, properties, body|
           begin
             event = call_consumer(delivery_info, properties, body)
           rescue Object => err # I really catch everything, even Timeout (not inherited from Exception)
@@ -48,11 +48,11 @@ module HopHop
 
     def call_consumer(delivery_info, properties, body)
       meta = {
-        routing_key: delivery_info.routing_key,
-        timestamp: properties.timestamp,
-        headers: {
-          producer: properties.headers['producer'],
-          version: properties.headers['version']
+        :routing_key => delivery_info.routing_key,
+        :timestamp   => properties.timestamp,
+        :headers     => {
+          :producer => properties.headers['producer'],
+          :version  => properties.headers['version']
         }
       }
       event = HopHop::ConsumeEvent.new(JSON.parse(body), meta)
@@ -76,7 +76,7 @@ module HopHop
     def bind
       logger.debug "Consumer binding: #{consumer.name} -> #{consumer.bindings.inspect}"
       consumer.bindings.each do |event_pattern|
-        queue.bind(exchange, routing_key: event_pattern)
+        queue.bind(exchange, :routing_key => event_pattern)
       end
       nil
     end
@@ -91,13 +91,13 @@ module HopHop
     # @note: don't call this before consumer is set
     # @return [Bunny::Queue]
     def queue
-      options = { durable: true }
+      options = { :durable => true }
       options[:exclusive] = true if consumer.queue.nil? || consumer.queue.empty?
       @queue ||= channel.queue(consumer.queue, options)
     end
 
     def exchange
-      @exchange ||= channel.topic(@exchange_name, durable: true)
+      @exchange ||= channel.topic(@exchange_name, :durable => true)
     end
 
     # Bunny channel
@@ -122,7 +122,7 @@ module HopHop
       @connection
     end
 
-    private
+  private
     def handle_error(event, delivery_info, error)
       normal_exit, strategy = case consumer.on_error(error)
       when :ignore

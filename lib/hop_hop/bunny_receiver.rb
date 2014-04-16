@@ -7,7 +7,7 @@ module HopHop
     # @option options [Integer] :port the port the rabbit mq server (5672)
     # @option options [String] :exchange name of the exchange to bind to (events)
     # @option options [Logger] :logger a logger to log cosnume errors (Logger.new(STDOUT))
-    def initialize(options = { host: 'localhost', port: 5672 })
+    def initialize(options={ :host => 'localhost', :port => 5672 })
       @options = options
       @logger = options[:logger] || Logger.new(STDOUT)
     end
@@ -22,7 +22,7 @@ module HopHop
       qc.loop # this runs the loop and only exists on Interrupts or #exit_loop
     end
 
-    private
+  private
     attr_reader :options, :logger
     def connect(consumer)
       qc = QueueConnection.new(consumer,

@@ -11,7 +11,7 @@ class ConsumerC < ConsumerB
 end
 
 describe HopHop::Consumer do
-  let(:callback) { double }
+  let(:callback){ double }
   let(:consumer) do
     Class.new(HopHop::Consumer) do
       bind :career
@@ -40,7 +40,7 @@ describe HopHop::Consumer do
 
   it 'should call on_init on init (implizit testing options)' do
     callback.should_receive(:setup_ok)
-    consumer.new(callback: callback)
+    consumer.new(:callback => callback)
   end
 
   context 'on inheritance' do
@@ -66,7 +66,7 @@ describe HopHop::Consumer do
         Class.new(consumer) do
           bind 'career.test4'
         end
-      end.to_not change { consumer.bind }
+      end.to_not change{ consumer.bind }
     end
 
     # 1.8.7 does some wierd things with the inherited callback on dynamically
