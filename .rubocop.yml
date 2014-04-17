@@ -1,0 +1,52 @@
+# inherit_from: rubocop-todo.yml
+
+FileName:
+  Exclude:
+    - Guardfile
+
+AlignHash:
+  EnforcedHashRocketStyle: table
+
+HashSyntax:
+  EnforcedStyle: hash_rockets
+
+LineLength:
+  Max: 99
+
+AccessModifierIndentation:
+  EnforcedStyle: outdent
+
+MethodDefParentheses:
+  EnforcedStyle: require_parentheses
+
+SpaceBeforeBlockBraces:
+  EnforcedStyle: no_space
+
+SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
+
+
+PerlBackrefs:
+  Description: 'Avoid Perl-style regex back references.'
+  Enabled: false
+
+StringLiterals:
+  Enabled: false
+  EnforcedStyle: double_quotes
+
+CollectionMethods:
+  Enabled: false
+
+# http://www.ruby-doc.org/core-2.1.1/Kernel.html#method-i-fail
+SignalException:
+    EnforcedStyle: only_raise
+
+#SpaceInsideBlockBraces:
+#  EnforcedStyle: no_space
+#  SupportedStyles:
+#    - space
+#    - no_space
+#  # Valid values are: space, no_space
+#  EnforcedStyleForEmptyBraces: no_space
+#  # Space between { and |. Overrides EnforcedStyle if there is a conflict.
+#  SpaceBeforeBlockParameters: false

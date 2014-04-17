@@ -7,9 +7,7 @@ require "hop_hop/queue_info"
 require "hop_hop/consume_event"
 require "hop_hop/event"
 require "hop_hop/consumer"
-require 'bunny'
+require "bunny"
 
 module HopHop
-
-
 end

@@ -10,10 +10,9 @@ class ConsumerC < ConsumerB
   bind "career.consumerC"
 end
 
-
 describe HopHop::Consumer do
-  let(:callback) { double }
-  let(:consumer) {
+  let(:callback){ double }
+  let(:consumer) do
     Class.new(HopHop::Consumer) do
       bind :career
       bind "career.test2", "career.test3"
@@ -30,7 +29,7 @@ describe HopHop::Consumer do
       end
 
     end
-  }
+  end
   it "should set the bindings" do
     consumer.bind.should == ["career", "career.test2", "career.test3"]
   end
@@ -45,11 +44,11 @@ describe HopHop::Consumer do
   end
 
   context "on inheritance" do
-    let(:inherited_consumer) {
+    let(:inherited_consumer) do
       Class.new(consumer) do
         bind "career.test4"
       end
-    }
+    end
     it "should inherit the bindings from the parent class" do
       ["career", "career.test2", "career.test3"].each do |b|
         expect(inherited_consumer.bind).to include(b)
@@ -63,11 +62,11 @@ describe HopHop::Consumer do
     end
     it "should not change bindings on the parent class" do
       consumer # because let is lazy
-      expect{
+      expect do
         Class.new(consumer) do
           bind "career.test4"
         end
-      }.to_not change{consumer.bind}
+      end.to_not change{ consumer.bind }
     end
 
     # 1.8.7 does some wierd things with the inherited callback on dynamically

@@ -7,22 +7,22 @@ module HopHop
     def self.underscore(camel_cased_word)
       word = camel_cased_word.to_s.dup
       word.gsub!('::', '/')
-      word.gsub!(/(?:([A-Za-z\d])|^)(#{acronym_regex})(?=\b|[^a-z])/) { "#{$1}#{$1 && '_'}#{$2.downcase}" }
+      word.gsub!(/(?:([A-Za-z\d])|^)(#{acronym_regex})(?=\b|[^a-z])/){ "#{$1}#{$1 && '_'}#{$2.downcase}" }
       word.gsub!(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2')
       word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
-      #word.tr!("-", "_")
+      # word.tr!("-", "_")
       word.downcase!
       word
     end
 
-    def self.camelize(term, uppercase_first_letter = true)
+    def self.camelize(term, uppercase_first_letter=true)
       string = term.to_s
       if uppercase_first_letter
-        string = string.sub(/^[a-z\d]*/) { $&.capitalize }
+        string = string.sub(/^[a-z\d]*/){ $&.capitalize }
       else
-        string = string.sub(/^(?:#{acronym_regex}(?=\b|[A-Z_])|\w)/) { $&.downcase }
+        string = string.sub(/^(?:#{acronym_regex}(?=\b|[A-Z_])|\w)/){ $&.downcase }
       end
-      string.gsub(/(?:_|(\/))([a-z\d]*)/) { "#{$1}#{$2.capitalize}" }.gsub('/', '::')
+      string.gsub(/(?:_|(\/))([a-z\d]*)/){ "#{$1}#{$2.capitalize}" }.gsub('/', '::')
     end
 
     def self.is_const_defined?(mod, const)
@@ -42,14 +42,14 @@ module HopHop
           constant.const_get(name)
         else
           candidate = constant.const_get(name)
-          next candidate if is_const_defined?(constant,name)
+          next candidate if is_const_defined?(constant, name)
           next candidate unless Object.const_defined?(name)
 
           # Go down the ancestors to check it it's owned
           # directly before we reach Object or the end of ancestors.
           constant = constant.ancestors.inject do |const, ancestor|
             break const if ancestor == Object
-            break ancestor if is_const_defined?(ancestor,name)
+            break ancestor if is_const_defined?(ancestor, name)
             const
           end
 
@@ -61,10 +61,8 @@ module HopHop
 
     # File activesupport/lib/active_support/core_ext/hash/slice.rb, line 15
     def self.slice_hash(hash, *keys)
-      keys.map! { |key| hash.convert_key(key) } if respond_to?(:convert_key, true)
-      keys.each_with_object(hash.class.new) { |k, agg| agg[k] = hash[k] if hash.has_key?(k) }
+      keys.map!{ |key| hash.convert_key(key) } if respond_to?(:convert_key, true)
+      keys.each_with_object(hash.class.new){ |k, agg| agg[k] = hash[k] if hash.key?(k) }
     end
-
-
-  end #module Helper
-end #module HopHop
+  end # module Helper
+end # module HopHop
