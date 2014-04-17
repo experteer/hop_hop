@@ -48,6 +48,7 @@ MethodLength:
   Enabled: false
   CountComments: false # count full line comments?
   Max: 10
+  Severity: refactor
 
 ClassLength:
   Enabled: false
