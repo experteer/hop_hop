@@ -27,19 +27,20 @@ module HopHop
         queue.subscribe(:block => true, :ack => true) do |delivery_info, properties, body|
           begin
             event = call_consumer(delivery_info, properties, body)
-          rescue Object => err # I really catch everything, even Timeout (not inherited from Exception)
+          rescue Object => err
+            # I really catch everything, even Timeout (not inherited from Exception)
             raise if err.kind_of?(Interrupt) # but Interrupts should still work
             normal_exit = handle_error(event, delivery_info, err)
           end
 
-          if exit_loop?
-            delivery_info.consumer.cancel
-          end
+          delivery_info.consumer.cancel if exit_loop?
         end
-      rescue Interrupt => errr
+      rescue Interrupt
         logger.info("Consumer terminated (interrupt): #{consumer.name} ")
         raise # so you can stop your scripts
-      ensure # on interrupt or exiting the loop close everything so there's no open connection hangigng around
+      ensure
+        # on interrupt or exiting the loop close everything so there's no open
+        # connection hangigng around
         close
       end
 
@@ -123,8 +124,10 @@ module HopHop
     end
 
   private
+
     def handle_error(event, delivery_info, error)
-      normal_exit, strategy = case consumer.on_error(error)
+      normal_exit, strategy =
+      case consumer.on_error(error)
       when :ignore
         # acknowledge and go on
         acknowledge_message(delivery_info)
@@ -146,7 +149,11 @@ module HopHop
         [false, 'unknown error strategy']
       end
 
-      logger.error("Consumer failed (#{strategy}): #{consumer.name} #{error.message}\n#{error.backtrace.join("\n")}\n#{event.inspect}")
+      logger.error(<<-EOF)
+      Consumer failed (#{strategy}): #{consumer.name} #{error.message}
+      #{error.backtrace.join("\n")}
+      #{event.inspect}
+      EOF
       normal_exit
     end
 
@@ -161,9 +168,8 @@ module HopHop
       channel.ack(delivery_info.delivery_tag)
     end
 
-    def exit_loop?
-      @exit_loop
-    end
+    attr_reader :exit_loop
+    alias_method :exit_loop?, :exit_loop
 
     def exit_loop!
       @exit_loop = true

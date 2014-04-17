@@ -25,7 +25,6 @@ describe HopHop::QueueConnection, :rabbitmq do
     end
   end
   class TestEvent < HopHop::Event
-  private
     def subsystem
       "test"
     end

@@ -24,4 +24,9 @@ task :gem_inabox_release do
   system(cmd)
 end
 
+require 'rubocop/rake_task'
+
+Rubocop::RakeTask.new
+
+
 task :default => :spec

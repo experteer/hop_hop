@@ -2,7 +2,8 @@ module HopHop
   # set HopHop::Consumer.receiver=HopHop::TestReceiver.new
   # then setup your consumer:
   # TestConsumer.consume
-  # fire an event at will: TestConsumer.receiver.receive_event({:foo => :bar},{:timestamp => Time.now.to_i})
+  # fire an event at will:
+  # TestConsumer.receiver.receive_event({:foo => :bar},{:timestamp => Time.now.to_i})
   class TestReceiver
     class TestQueueInfo
       def message_count

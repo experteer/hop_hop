@@ -7,58 +7,65 @@ module HopHop
     class ExitLoop < Exception
     end
 
-    # @param [Hash] options options for the consumer
-    # @return [Boolean] true if exit_loop was called, false if loop was exited because of an error
-    def self.consume(options={})
-      receiver.consume(new(options))
-    end
-
-    # the receiver is set in the environment files as is responsible to start the event loop.
-    def self.receiver
-      @@receiver
-    end
-
-    def self.receiver=(_receiver)
-      @@receiver = _receiver
-    end
-
-    self.receiver = nil
-
-    # This sets and gets the queue name the consumer will pop the messages.
-    # @note YOU have to handle race conditions if you fire up multiple consumers on the same queue. You can use this only once
-    #  per consumer.
-    # @param [String] queue_name   specifies a queue we will connect to or returns the current set queue name if queue_name is nill
-    # @example
-    #  class TestConsumer < HopHop::Consumer
-    #    queue "crm_mails"
-    #  end
-    def self.queue(queue_name=nil, options=nil)
-      if queue_name
-        @queue_options = options || {}
-        @queue_name = queue_name.to_s
-      else
-        @queue_name
+    class << self
+      # @param [Hash] options options for the consumer
+      # @return [Boolean] true if exit_loop was called, false if loop was exited because of an error
+      def consume(options={})
+        receiver.consume(new(options))
       end
-    end
 
-    def self.queue_options
-      @queue_options
-    end
+      # the receiver is set in the environment files as is responsible to start the event loop.
+      def receiver
+        @@receiver ||= nil
+      end
 
-    # This sets and gets binding the queue will be connected to.
-    # @note you can use this multiple times
-    # @param [String] event_names   specifies a event_name we will bind or returns the current event_names if event_name is nill
-    # @note You have to prove the whole event name (i.e. subsystem+.+event name)
-    # @example
-    #  class TestConsumer < HopHop::Consumer
-    #    bind "career.candidate.signup", :testing
-    #    bind "career.caniddate.cancel"
-    #  end
+      def receiver=(_receiver)
+        @@receiver = _receiver
+      end
 
-    def self.bind(*event_names)
-      @event_names ||= []
-      @event_names = (@event_names + [event_names].flatten).uniq.map(&:to_s)
-      @event_names
+      # This sets and gets the queue name the consumer will pop the messages.
+      # @note YOU have to handle race conditions if you fire up multiple consumers
+      #  on the same queue. You can use this only once per consumer.
+      # @param [String] queue_name  specifies a queue we will connect to or
+      #                             returns the current set queue name if queue_name is nill
+      # @example
+      #  class TestConsumer < HopHop::Consumer
+      #    queue "crm_mails"
+      #  end
+      def queue(queue_name=nil, options=nil)
+        if queue_name
+          @queue_options = options || {}
+          @queue_name = queue_name.to_s
+        else
+          @queue_name
+        end
+      end
+
+      attr_reader :queue_options
+
+      # This sets and gets binding the queue will be connected to.
+      # @note you can use this multiple times
+      # @param [String] event_names   specifies a event_name we will bind or
+      #                               returns the current event_names if event_name is nill
+      # @note You have to prove the whole event name (i.e. subsystem+.+event name)
+      # @example
+      #  class TestConsumer < HopHop::Consumer
+      #    bind "career.candidate.signup", :testing
+      #    bind "career.caniddate.cancel"
+      #  end
+
+      def bind(*event_names)
+        @event_names ||= []
+        @event_names = (@event_names + [event_names].flatten).uniq.map(&:to_s)
+        @event_names
+      end
+
+      def inherited(subclass)
+        subclass.bind(@event_names.dup) if @event_names
+        subclass.queue(
+          @queue_name.nil? ? nil : @queue_name.dup,
+          @queue_options.nil? ? nil : @queue_options.dup)
+      end
     end
 
     # options
@@ -73,7 +80,8 @@ module HopHop
 
     attr_reader :options, :logger
 
-    # This is called befor the event loop is entered but before it's bound to the queue so you can set up some instance vars.
+    # This is called befor the event loop is entered but before it's bound to
+    # the queue so you can set up some instance vars.
     # Just override it in your inherited class.
     def on_init
     end
@@ -119,14 +127,6 @@ module HopHop
 
     def exit_loop
       raise ExitLoop
-    end
-
-  private
-    def self.inherited(subclass)
-      subclass.bind(@event_names.dup) if @event_names
-      subclass.queue(
-        @queue_name.nil? ? nil : @queue_name.dup,
-        @queue_options.nil? ? nil : @queue_options.dup)
     end
   end
 end
