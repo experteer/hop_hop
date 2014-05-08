@@ -73,3 +73,6 @@ StringLiterals:
 
 CollectionMethods:
   Enabled: false
+
+RegexpLiteral:
+ Enabled: false

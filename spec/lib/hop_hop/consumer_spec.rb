@@ -25,7 +25,7 @@ describe HopHop::Consumer do
       def on_bind
       end
 
-      def on_error(exeption)
+      def on_error(_exeption)
       end
 
     end

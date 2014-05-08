@@ -8,14 +8,14 @@ Gem::Specification.new do |spec|
   spec.version       = HopHop::VERSION
   spec.authors       = ["Peter Schrammel"]
   spec.email         = ["peter.schrammel@experteer.com"]
-  spec.summary       = %q{HopHop is experteer's binding to rabbitmq}
+  spec.summary       = %q(HopHop is experteer's binding to rabbitmq)
 
-  spec.description   = %q{HopHop is experteer's binding to rabbitmq}
+  spec.description   = %q(HopHop is experteer's binding to rabbitmq)
   spec.homepage      = ""
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.executables   = spec.files.grep(%r{^bin/}){ |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 

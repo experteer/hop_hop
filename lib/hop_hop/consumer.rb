@@ -19,8 +19,8 @@ module HopHop
         @@receiver ||= nil
       end
 
-      def receiver=(_receiver)
-        @@receiver = _receiver
+      def receiver=(value)
+        @@receiver = value
       end
 
       # This sets and gets the queue name the consumer will pop the messages.
@@ -92,7 +92,7 @@ module HopHop
 
     # this should return one of :ignore, :requeue, :exit
     # if it requeues it can also do a sleep if ot wants to or increase a counter and exit, ...
-    def on_error(exception)
+    def on_error(_exception)
       :exit
     end
 
@@ -105,7 +105,7 @@ module HopHop
     # make sure you catch everything exception you want to accept.
     # @param [HopHop::ConsumeEvent] consume_event The event you should take care of.
     # @param [HopHop::QueueInfo] some infos on the queue status
-    def consume(consume_event, info)
+    def consume(_consume_event, _info)
       raise "please implement to consume method"
     end
 
