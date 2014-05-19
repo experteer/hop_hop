@@ -62,10 +62,35 @@ See http://trac.admin.experteer.com/trac/wiki/dev/Messagebus in our wiki.
       end
     end
 
+### running consumers ###
+
+The hop_hop binary can fire up/restart/check/stop your consumers.
+
+TBD: the config file (see pjpp config/hop_hop_consumers.rb for an example)
+
+
+Examples:
+To stop and start your consumers e.g. after a deployment you should run:
+  bundle exec hop_hop restart -l log/hop_hop_consumers -c config/hop_hop_consumers.rb
+Stdout/stderr will got to the log file. You can also use 'start' instead of 'restart', they are aliases.
+
+To stop all consumers and bring down the fork server just run:
+  bundle exec hop_hop stop -l log/hop_hop_consumers -c config/hop_hop_consumers.rb
+This will TERM the consumers and will also bring down the fork server.
+
+To just check if everything is up just run:
+  bundle exec hop_hop check -l log/hop_hop_consumers -c config/hop_hop_consumers.rb
+The exit code is 0 if all is up and there aren't too many consumers running 1 else.
+
+To check and fix run the following:
+  bundle exec hop_hop adjust -l log/hop_hop_consumers -c config/hop_hop_consumers.rb
+This will not reload the (Rails) environment but will just try to get the consumer up.
+Exit code is the same as wicth check.
+
 
 ## Contributing
 
-1. Fork it ( http://gitlab.admin.experteer.com/<my-github-username>/hop_hop/fork )
+1. Checkout the code http://gitlab.experteer.com/experteer/hop_hop
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
