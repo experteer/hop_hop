@@ -10,7 +10,7 @@ describe HopHop::QueueConnection, :rabbitmq do
     bind "test.queue_connector_test"
     queue "test_queue_test"
 
-    def consume(event, info)
+    def consume(event, _info)
       if event.data['error']
         raise 'whatever'
       elsif event.data['exit']
@@ -20,12 +20,11 @@ describe HopHop::QueueConnection, :rabbitmq do
       end
     end
 
-    def on_error(*args)
+    def on_error(*_args)
       :ignore
     end
   end
   class TestEvent < HopHop::Event
-  private
     def subsystem
       "test"
     end
@@ -84,7 +83,7 @@ describe HopHop::QueueConnection, :rabbitmq do
     context "on error => ignore" do
       let(:consumer_klass) do
         Class.new(TestConsumer) do
-          def on_error(*args)
+          def on_error(*_args)
             :ignore
           end
         end
@@ -110,7 +109,7 @@ describe HopHop::QueueConnection, :rabbitmq do
     context "on error -> exit" do
       let(:consumer_klass) do
         Class.new(TestConsumer) do
-          def on_error(*args)
+          def on_error(*_args)
             :exit
           end
         end
@@ -136,7 +135,7 @@ describe HopHop::QueueConnection, :rabbitmq do
     context "on error -> requeue" do
       let(:consumer_klass) do
         Class.new(TestConsumer) do
-          def on_error(*args)
+          def on_error(*_args)
             :requeue
           end
         end
@@ -162,7 +161,7 @@ describe HopHop::QueueConnection, :rabbitmq do
     context "on error -> unknown" do
       let(:consumer_klass) do
         Class.new(TestConsumer) do
-          def on_error(*args)
+          def on_error(*_args)
             :wtf # something not defined...
           end
         end

@@ -25,7 +25,7 @@ module HopHop
       string.gsub(/(?:_|(\/))([a-z\d]*)/){ "#{$1}#{$2.capitalize}" }.gsub('/', '::')
     end
 
-    def self.is_const_defined?(mod, const)
+    def self.const_defined?(mod, const)
       if method(:const_defined?).arity == 1
         mod.const_defined?(const) # <= ruby 1.8.7
       else
@@ -33,6 +33,9 @@ module HopHop
       end
     end
 
+    # rubocop:disable LineLength, CyclomaticComplexity
+    # pretty much the same code rails is using
+    # https://github.com/rails/rails/tree/master/activesupport/lib/active_support/inflector/methods.rb#L226
     def self.constantize(camel_cased_word)
       names = camel_cased_word.split('::')
       names.shift if names.empty? || names.first.empty?
@@ -42,14 +45,14 @@ module HopHop
           constant.const_get(name)
         else
           candidate = constant.const_get(name)
-          next candidate if is_const_defined?(constant, name)
+          next candidate if const_defined?(constant, name)
           next candidate unless Object.const_defined?(name)
 
           # Go down the ancestors to check it it's owned
           # directly before we reach Object or the end of ancestors.
           constant = constant.ancestors.inject do |const, ancestor|
             break const if ancestor == Object
-            break ancestor if is_const_defined?(ancestor, name)
+            break ancestor if const_defined?(ancestor, name)
             const
           end
 
@@ -58,6 +61,7 @@ module HopHop
         end
       end
     end
+    # rubocop:enable LineLength, CyclomaticComplexity
 
     # File activesupport/lib/active_support/core_ext/hash/slice.rb, line 15
     def self.slice_hash(hash, *keys)

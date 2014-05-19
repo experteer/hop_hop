@@ -21,25 +21,25 @@ module HopHop
     # @return [Boolean] true if exit_loop was called and false if interrupted
     def loop
       reset_exit_loop
-      # @stopping=false #this can also be set by the call_consumer method
       normal_exit = true
       begin
         queue.subscribe(:block => true, :ack => true) do |delivery_info, properties, body|
           begin
             event = call_consumer(delivery_info, properties, body)
-          rescue Object => err # I really catch everything, even Timeout (not inherited from Exception)
+          rescue Object => err
+            # I really catch everything, even Timeout (not inherited from Exception)
             raise if err.kind_of?(Interrupt) # but Interrupts should still work
             normal_exit = handle_error(event, delivery_info, err)
           end
 
-          if exit_loop?
-            delivery_info.consumer.cancel
-          end
+          delivery_info.consumer.cancel if exit_loop?
         end
-      rescue Interrupt => errr
+      rescue Interrupt
         logger.info("Consumer terminated (interrupt): #{consumer.name} ")
         raise # so you can stop your scripts
-      ensure # on interrupt or exiting the loop close everything so there's no open connection hangigng around
+      ensure
+        # on interrupt or exiting the loop close everything so there's no open
+        # connection hangigng around
         close
       end
 
@@ -47,15 +47,8 @@ module HopHop
     end
 
     def call_consumer(delivery_info, properties, body)
-      meta = {
-        :routing_key => delivery_info.routing_key,
-        :timestamp   => properties.timestamp,
-        :headers     => {
-          :producer => properties.headers["producer"],
-          :version  => properties.headers["version"]
-        }
-      }
-      event = HopHop::ConsumeEvent.new(JSON.parse(body), meta)
+      event = HopHop::ConsumeEvent.new(JSON.parse(body),
+                                       metadata(delivery_info, properties))
       info = QueueInfo.new(self)
 
       begin
@@ -123,31 +116,63 @@ module HopHop
     end
 
   private
+
+    def metadata(delivery_info, properties)
+      {
+        :routing_key => delivery_info.routing_key,
+        :timestamp   => properties.timestamp,
+        :headers     => {
+          :producer => properties.headers["producer"],
+          :version  => properties.headers["version"]
+        }
+      }
+    end
+
     def handle_error(event, delivery_info, error)
       normal_exit, strategy = case consumer.on_error(error)
-      when :ignore
-        # acknowledge and go on
-        acknowledge_message(delivery_info)
-        [true, 'ignored']
-      when :exit
-        # requeue and stop
-        requeue_message(delivery_info)
-        exit_loop!
-        [false, 'exiting']
-      when :requeue
-        # requeue
-        requeue_message(delivery_info)
-        sleep @options[:requeue_sleep]
-        [true, "requeueing (#{@options[:requeue_sleep]})"]
-      else
-        # requeue and stop
-        requeue_message(delivery_info)
-        exit_loop!
-        [false, 'unknown error strategy']
-      end
+                              when :ignore
+                                on_error_ignore(delivery_info)
+                              when :exit
+                                on_error_exit(delivery_info)
+                              when :requeue
+                                on_error_requeue(delivery_info)
+                              else
+                                on_error_stop(delivery_info)
+                              end
 
-      logger.error("Consumer failed (#{strategy}): #{consumer.name} #{error.message}\n#{error.backtrace.join("\n")}\n#{event.inspect}")
+      logger.error(<<-EOF)
+Consumer failed (#{strategy}): #{consumer.name} #{error.message}
+#{error.backtrace.join("\n")}
+#{event.inspect}
+EOF
       normal_exit
+    end
+
+    # acknowledge and go on
+    def on_error_ignore(delivery_info)
+      acknowledge_message(delivery_info)
+      [true, 'ignored']
+    end
+
+    # requeue and stop
+    def on_error_exit(delivery_info)
+      requeue_message(delivery_info)
+      exit_loop!
+      [false, 'exiting']
+    end
+
+    # requeue
+    def on_error_requeue(delivery_info)
+      requeue_message(delivery_info)
+      sleep @options[:requeue_sleep]
+      [true, "requeueing (#{@options[:requeue_sleep]})"]
+    end
+
+    # requeue and stop
+    def on_error_stop(delivery_info)
+      requeue_message(delivery_info)
+      exit_loop!
+      [false, 'unknown error strategy']
     end
 
     # Reject Message and requeue it
@@ -161,9 +186,8 @@ module HopHop
       channel.ack(delivery_info.delivery_tag)
     end
 
-    def exit_loop?
-      @exit_loop
-    end
+    attr_reader :exit_loop
+    alias_method :exit_loop?, :exit_loop
 
     def exit_loop!
       @exit_loop = true

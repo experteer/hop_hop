@@ -11,19 +11,19 @@ describe HopHop::Event do
 
   describe "header" do
     it "should have a producer" do
-      event.producer.should == "hostname.123.unknown"
+      expect(event.producer).to eql("hostname.123.unknown")
     end
     it "should have a version" do
-      event.version.should == 23
+      expect(event.version).to eql(23)
     end
     it "should have no sent_at as event is not sent" do
       event.sent_at.should be_nil
     end
     it "should have a name (this will be the routing key) prefix with the subsystem" do
-      event.name.should == "unknown.the.routing.key"
+      expect(event.name).to eql("unknown.the.routing.key")
     end
     it "should have the data to be transfered" do
-      event.data.should == data
+      expect(event.data).to eql(data)
     end
   end
 
@@ -37,7 +37,7 @@ describe HopHop::Event do
       now = Timecop.freeze
       HopHop::Event.sender.should_receive(:publish)
       event.send
-      event.sent_at.should == now
+      expect(event.sent_at).to eql(now)
     end
 
     it "should add the meta data" do
@@ -71,12 +71,12 @@ describe HopHop::Event do
     it "should store events in an array" do
       event.send
       testex.should_not be_empty
-      testex[0].should == [event.data, event.meta]
+      expect(testex[0]).to eql([event.data, event.meta])
     end
 
     it "should clear the event array" do
       event.send
-      testex.size.should == 1
+      expect(testex.size).to eql(1)
       testex.reset
       testex.should be_empty
     end

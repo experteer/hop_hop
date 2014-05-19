@@ -17,9 +17,7 @@ module HopHop
     # @param [Object] data is an object that responds to to_json
     # @param [Hash] meta a hash of meta informations (see HopHop::Event#meta)
     def publish(data, meta)
-      if options[:ttl]
-        meta = meta.merge(:expiration => options[:ttl])
-      end
+      meta = meta.merge(:expiration => options[:ttl]) if options[:ttl]
 
       exchange.publish(data.to_json, meta)
     end

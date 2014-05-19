@@ -1,5 +1,6 @@
 module HopHop
-  # this class will bind to the events exchange, create the queue, receive messages from the queue, wrap them into HopHop::CustomEvent
+  # this class will bind to the events exchange, create the queue, receive
+  # messages from the queue, wrap them into HopHop::CustomEvent
   # and dispatch it to a HohHop::Cunsumer instance.
   class BunnyReceiver
     # @param [Hash] options
@@ -23,6 +24,7 @@ module HopHop
     end
 
   private
+
     attr_reader :options, :logger
     def connect(consumer)
       qc = QueueConnection.new(consumer,
