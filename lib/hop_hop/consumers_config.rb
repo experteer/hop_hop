@@ -20,9 +20,9 @@ module HopHop
           HopHop::ConsumerConfig.new(hash.merge(cfg))
         end
         @config = { :consumers     => consumers,
-                 :identifier =   >  @raw_config[:identifier],
-                 :port          => @raw_config[:port],
-                 :server_config => @raw_config[:server_config]
+                    :identifier    => @raw_config[:identifier],
+                    :port          => @raw_config[:port],
+                    :server_config => @raw_config[:server_config]
         }
       end
 
