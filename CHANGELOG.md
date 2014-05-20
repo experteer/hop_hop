@@ -1,6 +1,8 @@
 ## Changelog
 
-
+### 0.1.2
+    * now the identifier is also matched when looking for processes
+    * code cleanups
 ### 0.1.1
     * fixing strange syntax errors after rubyocop run
 ### 0.1.0 
