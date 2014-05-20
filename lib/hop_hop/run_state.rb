@@ -11,8 +11,8 @@ module HopHop
     def initialize(config, options={})
       @config = config
       @running_pids = nil
-      set_running_pids
       @options = options
+      set_running_pids
     end
 
     # just a shortcat to the consumer's name
@@ -63,12 +63,14 @@ module HopHop
           raise "WTF"
       end
 
-      wait_for_process(required_count_running) unless testing # wait for process list changes only if not in testing mode
+      # wait for process list changes only if not in testing mode
+      wait_for_process(required_count_running) unless testing
 
       { :started => started, :removed => removed } # perhaps an object would be better
     end
 
   private
+
     def wait_for_process(required_count_running)
       tries = 0
 
@@ -82,8 +84,8 @@ module HopHop
     end
 
     def set_running_pids
-      name_regexp = Regexp.new(name)
-      running_pids = nil
+      # TBD: have a run_as method?
+      name_regexp = Regexp.new("--identifier #{@options[:identifier]} #{name}")
       tries = 0
       begin
         @running_pids = Sys::ProcTable.ps.select{ |proc| proc.cmdline =~ name_regexp }.map(&:pid)
