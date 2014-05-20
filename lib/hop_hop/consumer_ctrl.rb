@@ -54,9 +54,12 @@ module HopHop
     end
 
   private
+
     def with_each_consumer
       @consumer_configs.consumers.each do |consumer_config|
-        runstate = RunState.new(consumer_config, :spawner_server => spawner_server, :identifier => @consumer_configs.identifier)
+        runstate = RunState.new(consumer_config,
+                                :spawner_server => spawner_server,
+                                :identifier     => @consumer_configs.identifier)
         yield runstate
       end
     end
@@ -112,9 +115,9 @@ module HopHop
       tries = 20
       sleep_time = 0.5
       while yield && tries > 0
-        tries = tries - 1
+        tries -=  1
         sleep sleep_time
-        STDOUT.write(".")
+        # STDOUT.write(".")
       end
     end
   end

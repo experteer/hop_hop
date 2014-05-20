@@ -34,9 +34,9 @@ module HopHop
     end
 
   private
+
     def options_parser
       @options ||= { :port => DEFAULT_PORT, :log => "hop_hop" }
-      version = false
       @options_parser ||= OptionParser.new do |opts|
         opts.banner = "Usage: hop_hop --help|--version
        hop_hop (start|restart|stop|adjust|check) (--config|--port)"
@@ -44,14 +44,28 @@ module HopHop
         opts.separator ""
         opts.separator "options:"
 
-        opts.on('-c', '--config FILE', "Load config from file (default: #{@options[:log].inspect})") { |file|
-          @options[:config_file] = file }
-        opts.on('-p', '--port PORT', "Spawner port (default: #{@options[:port].inspect})") { |port|
-          @options[:port] = port }
-        opts.on('-l', '--log FILE', "Where the log to (esp. STDOUT) (default: #{@options[:log].inspect})") { |file|
-                  @options[:log] = file }
-        opts.on('--version', "printing the version and exits"){ puts HopHop::VERSION; exit 0 }
-        opts.on('--help', "print this help"){ puts @options_parser; exit 0 }
+        opts.on('-c', '--config FILE', "Load config from file (default: #{@options[:log].inspect})") do |file|
+          @options[:config_file] = file
+        end
+
+        opts.on('-p', '--port PORT', "Spawner port (default: #{@options[:port].inspect})") do |port|
+          @options[:port] = port
+        end
+
+        opts.on('-l', '--log FILE', "Where the log to (esp. STDOUT) (default: #{@options[:log].inspect})") do |file|
+          @options[:log] = file
+        end
+
+        opts.on('--version', "printing the version and exits") do
+          puts HopHop::VERSION
+          exit 0
+        end
+
+        opts.on('--help', "print this help") do
+          puts @options_parser
+          exit 0
+        end
+
       end
     end
   end

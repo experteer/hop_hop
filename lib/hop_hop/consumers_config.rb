@@ -27,6 +27,7 @@ module HopHop
       end
 
     private
+
       def hop_hop_config=(hash)
         @raw_config = hash
       end
