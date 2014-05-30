@@ -10,6 +10,8 @@ require 'hop_hop'
 require 'hop_hop/test'
 require 'timecop'
 
+HOPHOP_ROOT=Pathname.new(File.expand_path(File.join(__FILE__,"../..")))
+
 HopHop::Event.sender = HopHop::TestSender.new
 HopHop::Consumer.receiver = HopHop::TestReceiver.new
 
@@ -29,4 +31,8 @@ RSpec.configure do |config|
     HopHop::Event.sender.reset if HopHop::Event.sender.respond_to?(:reset)# throw away all events
     HopHop::Event.producer_prefix = 'localhost.9999'
   end
+end
+
+def fixture_path(name)
+  HOPHOP_ROOT.join("spec","fixtures",name)
 end

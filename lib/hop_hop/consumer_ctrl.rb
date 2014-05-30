@@ -86,7 +86,7 @@ module HopHop
     def ensure_no_spawner
       if spawner_alive?
         spawner_server.finish
-        wait_unless(20, 0.5){ spawner_alive? } # now wait for it to spin up
+        wait_unless(@consumer_configs.wait_spinup){ spawner_alive? } # now wait for it to spin up
         raise "Could not spin down the fork server" if spawner_alive?
       end
     end
@@ -106,14 +106,13 @@ module HopHop
         end
 
         Process.detach(pid) # so we leave no zombies behind
-        wait_unless(20, 0.5){ !spawner_alive? } # now wait for it to spin up
+        wait_unless(@consumer_configs.wait_spinup){ !spawner_alive? } # now wait for it to spin up
         raise "Could not spin up the fork server" unless spawner_alive?
       end
     end
 
-    def wait_unless(tries, sleep_time)
-      tries = 20
-      sleep_time = 0.5
+    def wait_unless(seconds, sleep_time=0.5)
+      tries = seconds/sleep_time
       while yield && tries > 0
         tries -=  1
         sleep sleep_time

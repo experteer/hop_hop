@@ -22,7 +22,8 @@ module HopHop
         @config = { :consumers     => consumers,
                     :identifier    => @raw_config[:identifier],
                     :port          => @raw_config[:port],
-                    :server_config => @raw_config[:server_config]
+                    :server_config => @raw_config[:server_config],
+                    :wait_spinup   => @raw_config[:wait_spinup]
         }
       end
 
@@ -36,7 +37,7 @@ module HopHop
     # creates a config for an environment
     def self.load(filename, env)
       env = env.to_s
-      config = Reader.read(filename, env)
+      config = Reader.read(filename.to_s, env)
       new(env, config) # no need to map further
     end
 
@@ -48,11 +49,15 @@ module HopHop
     attr_reader :port
     # configuration hash for the forking server
     attr_reader :server_config
+    # wait for this seconds until the consumer server is running
+    attr_reader :wait_spinup
+
     def initialize(env, config_hash)
       @consumers = config_hash[:consumers]
       @identifier = "#{env}-#{config_hash[:identifier]}"
       @port = config_hash[:port]
       @server_config = config_hash[:server_config]
+      @wait_spinup=config_hash[:wait_spinup]
     end
   end
 end
