@@ -1,5 +1,7 @@
 ## Changelog
 
+### 0.2.0
+    * adding wait_spinup config
 ### 0.1.2
     * now the identifier is also matched when looking for processes
     * code cleanups
