@@ -112,7 +112,7 @@ module HopHop
     end
 
     def wait_unless(seconds, sleep_time=0.5)
-      tries = seconds/sleep_time
+      tries = seconds / sleep_time
       while yield && tries > 0
         tries -=  1
         sleep sleep_time

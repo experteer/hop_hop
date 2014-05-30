@@ -1,13 +1,13 @@
 require 'spec_helper'
 
 describe HopHop::ConsumersConfig do
-  let(:config_name){
+  let(:config_name)do
     fixture_path("config_hop_hop.rb")
-  }
+  end
 
-  let(:config) {
-    HopHop::ConsumersConfig.load(config_name,'test')
-  }
+  let(:config) do
+    HopHop::ConsumersConfig.load(config_name, 'test')
+  end
   it "should load a config file" do
     config
   end

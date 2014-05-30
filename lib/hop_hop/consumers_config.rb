@@ -57,7 +57,7 @@ module HopHop
       @identifier = "#{env}-#{config_hash[:identifier]}"
       @port = config_hash[:port]
       @server_config = config_hash[:server_config]
-      @wait_spinup=config_hash[:wait_spinup]
+      @wait_spinup = config_hash[:wait_spinup]
     end
   end
 end
