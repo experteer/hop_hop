@@ -9,6 +9,7 @@ describe HopHop::QueueConnection, :rabbitmq do
   class TestConsumer < HopHop::Consumer
     bind "test.queue_connector_test"
     queue "test_queue_test"
+    before_filter :filter
 
     def consume(event, _info)
       if event.data['error']
@@ -18,6 +19,15 @@ describe HopHop::QueueConnection, :rabbitmq do
       else
         rand(32)
       end
+    end
+
+    def filter(event, _info)
+      if event.data['exit_in_filter']
+        exit_loop
+      elsif event.data['halt_in_filter']
+        return false
+      end
+      true
     end
 
     def on_error(*_args)
@@ -70,6 +80,28 @@ describe HopHop::QueueConnection, :rabbitmq do
     end
     it "should acknowledge" do
       expect(@qc).to receive(:acknowledge_message)
+      @qc.loop
+    end
+  end
+  context 'filter' do
+    let(:consumer_klass) { TestConsumer }
+    it 'should exit in the filter' do
+      expect(consumer).not_to receive(:consume)
+      expect(consumer).to receive(:filter).and_call_original
+      expect(@qc).to receive(:exit_loop!)
+      TestEvent.send('queue_connector_test', 1, :exit_in_filter => true)
+      @qc.loop
+    end
+    it 'should halt in the filter when it return false' do
+      expect(consumer).not_to receive(:consume)
+      expect(consumer).to receive(:filter)
+      TestEvent.send('queue_connector_test', 1, :halt_in_filter => true)
+      @qc.loop
+    end
+    it 'should pass the filter' do
+      expect(consumer).to receive(:consume)
+      expect(consumer).to receive(:filter)
+      TestEvent.send('queue_connector_test', 1, {} )
       @qc.loop
     end
   end

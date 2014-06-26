@@ -17,7 +17,8 @@ describe HopHop::Consumer do
       bind :career
       bind "career.test2", "career.test3"
       queue "career_queue_test"
-
+      before_filter :foo
+      before_filter :foo, "bar"
       def on_init
         options[:callback].setup_ok
       end
@@ -41,6 +42,10 @@ describe HopHop::Consumer do
   it "should call on_init on init (implizit testing options)" do
     callback.should_receive(:setup_ok)
     consumer.new(:callback => callback)
+  end
+
+  it 'should maintain before_filter' do
+    consumer.before_filters.should == [ :foo, :bar ]
   end
 
   context "on inheritance" do
@@ -80,7 +85,7 @@ describe HopHop::Consumer do
     it "should inherit bindings for ConsumerB from ConsumerA" do
       expect(ConsumerB.bind).to include("career.consumerA")
     end
-    it "should set bindings for ConsumerA" do
+    it "should set bindings for ConsumerC" do
       expect(ConsumerC.bind).to include("career.consumerC")
     end
     it "should inherit bindings for ConsumerC from ConsumerA & ConsumerB" do
