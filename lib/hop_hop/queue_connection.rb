@@ -53,7 +53,9 @@ module HopHop
 
       begin
         logger.debug("Consumer consuming: #{consumer.name} - #{event.name} '#{delivery_info.delivery_tag}'")
-        consumer.consume(event, info)
+        if consumer.run_before_filters(event,info) != false
+          consumer.consume(event, info)
+        end
       rescue HopHop::Consumer::ExitLoop
         logger.info("Consumer exiting loop: #{consumer.name}")
         exit_loop!
