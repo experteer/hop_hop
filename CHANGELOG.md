@@ -1,5 +1,6 @@
 ## Changelog
-
+### 0.3.0
+    * upgrading bunny from 1.1.7 to 1.3.1
 ### 0.2.0
     * adding wait_spinup config
 ### 0.1.2
