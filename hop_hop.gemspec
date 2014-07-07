@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "2.14.1"
   spec.add_development_dependency "timecop", "0.3.5"
 
-  spec.add_dependency "bunny", "1.1.7"
+  spec.add_dependency "bunny", "1.3.1"
   spec.add_dependency "sys-proctable", ">=0.9.0"
 
 end
