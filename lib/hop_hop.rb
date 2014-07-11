@@ -7,6 +7,7 @@ require "hop_hop/queue_info"
 require "hop_hop/consume_event"
 require "hop_hop/event"
 require "hop_hop/consumer"
+require "hop_hop/suspendable_consumer"
 
 # for start/stop/cronjobs
 require 'hop_hop/consumer_config'

@@ -41,7 +41,7 @@ module HopHop
         end
       end
 
-      attr_reader :queue_options
+      attr_reader :queue_options, :before_filters
 
       # This sets and gets binding the queue will be connected to.
       # @note you can use this multiple times
@@ -60,8 +60,22 @@ module HopHop
         @event_names
       end
 
+      # declare before filter to be called before the consume method is called.
+      # before filter are called with event and info parameters (as consume) 
+      # before filter may call exit_loop to terminate the consumer,
+      # return false to terminate the event processing or anything else
+      # to continue
+      #
+      # @param [Symbol, String, Array<Symbol, String>] methods to be called as before filter
+      def before_filter(*methods)
+        @before_filters ||= []
+        @before_filters = (@before_filters + [methods].flatten.map(&:to_sym)).uniq
+        @before_filters
+      end
+
       def inherited(subclass)
         subclass.bind(@event_names.dup) if @event_names
+        subclass.before_filter(@before_filters) if @before_filters
         subclass.queue(
           @queue_name.nil? ? nil : @queue_name.dup,
           @queue_options.nil? ? nil : @queue_options.dup)
@@ -98,6 +112,16 @@ module HopHop
 
     def name
       "#{self.class} (#{queue})"
+    end
+
+    # run before filters
+    # @return false if any of the filters returns false, true otherwise
+    def run_before_filters(event, info)
+      return unless self.class.before_filters
+      self.class.before_filters.each do | filter |
+        return false if send(filter, event, info) == false
+      end
+      true
     end
 
     # This is the callback from the receiver. It will be called whenever a new message arrives.
