@@ -1,4 +1,6 @@
 ## Changelog
+### 0.5.0
+    * passing :heartbeat, :automatically_recover, :user, :password to Bunny
 ### 0.4.0
     * suspendable consumers
 ### 0.3.0

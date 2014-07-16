@@ -9,8 +9,16 @@ module HopHop
     # @option options [Integer] :port the port the rabbit mq server (5672)
     # @option options [String] :exchange name of the exchange to bind to (events)
     # @option options [Integer] if set to a number the messages will timeout after this number miliseconds (nil)
-    def initialize(options={ :host => 'localhost', :port => 5672, :exchange => 'events', :ttl => nil })
-      @options = options
+    # @option options [Integer] :heartbeat seconds (0 = none, :server means use from server, default: :server) 
+    # @option options [Integer] :automatically_recover (true)
+    # @option options [String]  :user (guest)
+    # @option options [String]  :password (guest)
+            
+    def initialize(options={})
+      defaults = { :host => 'localhost', :port => 5672, :exchange => 'events', :user => 'guest', :password => 'guest',
+      :heartbeat => :server, :automatically_recover  => true , :ttl => nil }
+      
+      @options = defaults.merge(options)
       @exchange_name = options[:events] || 'events'
     end
 
@@ -34,7 +42,7 @@ module HopHop
 
     def connection
       return @connection if defined?(@connection)
-      @connection = Bunny.new(:host => options[:host], :port => options[:port])
+      @connection = Bunny.new(Helper.slice_hash(options, :host, :port, :user, :password, :heartbeat, :automatically_recover ))
       @connection.start
     end
   end

@@ -8,6 +8,14 @@ module HopHop
     # @option options [Integer] :port the port the rabbit mq server (5672)
     # @option options [String] :exchange name of the exchange to bind to (events)
     # @option options [Logger] :logger a logger to log cosnume errors (Logger.new(STDOUT))
+    # @option options [String] :exchange name of the exchange to bind to (events)
+    # @option options [Integer] :prefetch number of messages to prefetch (1)
+    # @option options [Integer] :requeue_sleep seconds to sleep after a requeue (5)
+    # @option options [Integer] :heartbeat seconds (0 = none, :server means use from server, default: :server) 
+    # @option options [Integer] :automatically_recover (true)
+    # @option options [String]  :user (guest)
+    # @option options [String]  :password (guest)
+    
     def initialize(options={ :host => 'localhost', :port => 5672 })
       @options = options
       @logger = options[:logger] || Logger.new(STDOUT)
@@ -28,7 +36,8 @@ module HopHop
     attr_reader :options, :logger
     def connect(consumer)
       qc = QueueConnection.new(consumer,
-                               Helper.slice_hash(options, :host, :port, :virtual_host, :prefetch, :requeue_sleep))
+                               Helper.slice_hash(options, :host, :port, :virtual_host, 
+                               :prefetch, :requeue_sleep, :automatically_recover, :heartbeat, :exchange, :user, :password))
       consumer.on_bind
       qc
     end

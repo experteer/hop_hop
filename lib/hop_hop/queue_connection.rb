@@ -112,7 +112,8 @@ module HopHop
     # @return [Bunny::Session] active Bunny session
     def connection
       return @connection if defined?(@connection)
-      @connection = Bunny.new(Helper.slice_hash(@options, :host, :port, :virtual_host))
+      @connection = Bunny.new(Helper.slice_hash(@options, :host, :port, :virtual_host, :heartbeat, 
+                                                :automatically_recover,:user,:password))
       @connection.start
       @connection
     end
