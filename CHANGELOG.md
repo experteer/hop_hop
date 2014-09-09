@@ -1,4 +1,7 @@
 ## Changelog
+### 0.6.0
+    * poor man's reconnect
+    * added codeqa and ran rubocop
 ### 0.5.0
     * passing :heartbeat, :automatically_recover, :user, :password to Bunny
 ### 0.4.0
