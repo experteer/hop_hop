@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "2.14.1"
   spec.add_development_dependency "timecop", "0.3.5"
   spec.add_development_dependency "codeqa", "0.4.1"
+  spec.add_development_dependency "rubocop", "0.26.0"
 
   spec.add_dependency "bunny", "1.3.1"
   spec.add_dependency "sys-proctable", ">=0.9.0"

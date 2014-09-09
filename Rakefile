@@ -31,7 +31,7 @@ end
 
 require 'rubocop/rake_task'
 
-Rubocop::RakeTask.new
+RuboCop::RakeTask.new
 
 task :default => :spec
 desc 'alias for init:all'
