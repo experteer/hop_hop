@@ -4,5 +4,5 @@ source 'https://rubygems.org'
 gemspec
 
 group :developemnt do
-  gem 'rubocop', :require => false
+  gem 'rubocop', "0.26.0", :require => false
 end

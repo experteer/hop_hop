@@ -23,14 +23,14 @@ end
 
 #################################################
 
-#if staged_files.any?{ |f| f =~ /Gemfile/ }
+# if staged_files.any?{ |f| f =~ /Gemfile/ }
 #  puts "regenerating Gemfile.lock"
 #  `bundle install --gemfile Gemfile --quiet`
 #  `git add Gemfile.lock`
 #  unless staged_files.include? "Gemfile.lock"
 #    staged_files.push 'Gemfile.lock'
 #  end
-#end
+# end
 
 #################################################
 

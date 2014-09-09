@@ -45,10 +45,10 @@ namespace :init do
   desc 'copy the git-hooks'
   task :git_hooks do
     cd_root
-    mkdir ".git/hooks" unless File.exists?(".git/hooks")
-    ln_sf "misc/git/pre-commit", ".git/hooks"
-    #ln_sf "../../misc/git/post-checkout", ".git/hooks"
-    #ln_sf "../../misc/git/post-merge", ".git/hooks"
+    mkdir ".git/hooks" unless File.exist?(".git/hooks")
+    ln_sf "../../misc/git/pre-commit", ".git/hooks"
+    # ln_sf "../../misc/git/post-checkout", ".git/hooks"
+    # ln_sf "../../misc/git/post-merge", ".git/hooks"
   end
 
 end

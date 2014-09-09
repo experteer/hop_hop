@@ -5,7 +5,7 @@ Codeqa.configure do |config|
   config.enabled_checker << 'RubocopLint'
   config.enabled_checker << 'RubocopFormatter'
 
-  %w(AlignHash TrailingComma BlockEndNewline SpaceAfterComma).each do |cop|
+  %w(AlignHash TrailingComma BlockEndNewline SpaceAfterComma Tab SpaceInsideBlockBraces SymbolProc).each do |cop|
     config.rubocop_formatter_cops << cop
   end
 #  config.enabled_checker << 'HtmlValidator'
