@@ -31,6 +31,9 @@ RSpec.configure do |config|
     HopHop::Event.sender.reset if HopHop::Event.sender.respond_to?(:reset)# throw away all events
     HopHop::Event.producer_prefix = 'localhost.9999'
   end
+  config.after do
+    HopHop::Event.sender = HopHop::TestSender.new
+  end
 end
 
 def fixture_path(name)

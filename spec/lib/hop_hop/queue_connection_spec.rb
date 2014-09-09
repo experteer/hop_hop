@@ -2,9 +2,6 @@ require 'spec_helper'
 require 'json'
 
 describe HopHop::QueueConnection, :rabbitmq do
-  after(:all) do
-    HopHop::Event.sender = HopHop::TestSender.new
-  end
 
   class TestConsumer < HopHop::Consumer
     bind "test.queue_connector_test"
@@ -47,6 +44,7 @@ describe HopHop::QueueConnection, :rabbitmq do
     @qc = described_class.new(consumer, :host => 'localhost', :port => 5672, :requeue_sleep => 0.1)
     @qc.stub(:exit_loop?).and_return(true) # always exit the loop after an event
   end
+
   after(:each) do
     # reestablish connection to queue and purge it before moving on
     qc = described_class.new(consumer, :host => 'localhost', :port => 5672)
