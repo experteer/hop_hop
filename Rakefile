@@ -1,5 +1,8 @@
-require "bundler/gem_tasks"
+require "bundler" #/gem_tasks"
 require 'fileutils'
+require 'geminabox-release'
+
+GeminaboxRelease.patch(:use_config => true)
 
 def cd_root
   File.expand_path(File.dirname(__FILE__))
@@ -21,13 +24,6 @@ task :specs do
   raise "Command failed with status (#{$CHILD_STATUS.to_i}): #{cmd}" if $CHILD_STATUS.to_i != 0
 end
 task :spec => :specs
-
-desc 'build gem and push to gem inabox'
-task :gem_inabox_release do
-  cmd = "gem build hop_hop.gemspec; gem inabox hop_hop-#{HopHop::VERSION}.gem"
-  puts cmd if Rake.application.options.trace
-  system(cmd)
-end
 
 require 'rubocop/rake_task'
 
