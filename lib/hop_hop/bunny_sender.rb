@@ -9,14 +9,14 @@ module HopHop
     # @option options [Integer] :port the port the rabbit mq server (5672)
     # @option options [String] :exchange name of the exchange to bind to (events)
     # @option options [Integer] if set to a number the messages will timeout after this number miliseconds (nil)
-    # @option options [Integer] :heartbeat seconds (0 = none, :server means use from server, default: :server) 
+    # @option options [Integer] :heartbeat seconds (0 = none, :server means use from server, default: :server)
     # @option options [Integer] :automatically_recover (true)
     # @option options [String]  :user (guest)
     # @option options [String]  :password (guest)
 
-    def initialize(options={})
-      defaults = {:host => 'localhost', :port => 5672, :exchange => 'events', :user => 'guest', :password => 'guest',
-                  :heartbeat => :server, :automatically_recover => true, :ttl => nil}
+    def initialize(options = {})
+      defaults = { host: 'localhost', port: 5672, exchange: 'events', user: 'guest', password: 'guest',
+                  heartbeat: :server, automatically_recover: true, ttl: nil }
 
       @options = defaults.merge(options)
       @exchange_name = options[:events] || 'events'
@@ -25,8 +25,8 @@ module HopHop
     # @param [Object] data is an object that responds to to_json
     # @param [Hash] meta a hash of meta informations (see HopHop::Event#meta)
     def publish(data, meta)
-      meta = meta.merge(:expiration => options[:ttl]) if options[:ttl]
-      tries=3
+      meta = meta.merge(expiration: options[:ttl]) if options[:ttl]
+      tries = 3
       begin
         exchange.publish(data.to_json, meta)
         # I have to rescue these and retry as bunny's autoreconnect sometimes simply doesn't work
@@ -34,19 +34,19 @@ module HopHop
       rescue Bunny::ConnectionClosedError, Bunny::ChannelAlreadyClosed
         tries -= 1
         sleep 0.3
-        #puts "rertying #{tries}"
-        retry if tries >=0
+        reset
+        retry if tries >= 0
       end
     end
 
     private
 
     def reset
-      @exchange=@channel=@connection=nil
+      @exchange = @channel = @connection = nil
     end
 
     def exchange
-      @exchange ||= channel.topic(@exchange_name, :durable => true)
+      @exchange ||= channel.topic(@exchange_name, durable: true)
     end
 
     def channel
