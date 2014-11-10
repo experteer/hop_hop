@@ -35,7 +35,7 @@ module HopHop
         tries -= 1
         sleep 0.3
         reset
-        retry if tries >= 0
+        tries >= 0 ? retry : raise
       end
     end
 

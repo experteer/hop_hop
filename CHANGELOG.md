@@ -1,4 +1,6 @@
 ## Changelog
+### 0.6.2
+    * reraise connection errors
 ### 0.6.1
     * fixing poor man's reconnect (forgot to reset the connection)
 ### 0.6.0
