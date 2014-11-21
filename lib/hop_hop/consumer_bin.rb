@@ -21,7 +21,7 @@ module HopHop
         exit(1)
       end
 
-      @selected_env = ENV["HOPHOP_CTRL_ENV"] || ENV["RAILS_ENV"] || "development"
+      @selected_env = ENV["HOPHOP_CTRL_ENV"] || ENV["RAILS_ENV"] || ENV["RACK_ENV"] || ENV["RUBY_ENV"] || "development"
 
       if options[:config_file]
         @consumer_configs = ConsumersConfig.load(options[:config_file], @selected_env)
@@ -29,14 +29,14 @@ module HopHop
     end
 
     def run
-      ctrl = ConsumerCtrl.new(@consumer_configs, :port => @options[:port], :log => @options[:log])
+      ctrl = ConsumerCtrl.new(@consumer_configs, port: @options[:port], log: @options[:log])
       exit ctrl.send(@command)
     end
 
   private
 
     def options_parser
-      @options ||= { :port => DEFAULT_PORT, :log => "hop_hop" }
+      @options ||= { port: DEFAULT_PORT, log: "hop_hop" }
       @options_parser ||= OptionParser.new do |opts|
         opts.banner = "Usage: hop_hop --help|--version
        hop_hop (start|restart|stop|adjust|check) (--config|--port)"
