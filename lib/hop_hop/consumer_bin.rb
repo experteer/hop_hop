@@ -24,12 +24,15 @@ module HopHop
       @selected_env = ENV["HOPHOP_CTRL_ENV"] || ENV["RAILS_ENV"] || ENV["RACK_ENV"] || ENV["RUBY_ENV"] || "development"
 
       if options[:config_file]
-        @consumer_configs = ConsumersConfig.load(options[:config_file], @selected_env)
+        @config = Config.load(options[:config_file], @selected_env, port: @options[:port], log: @options[:log])
+      else
+        $STDERR.puts "no config file given"
+        exit 1
       end
     end
 
     def run
-      ctrl = ConsumerCtrl.new(@consumer_configs, port: @options[:port], log: @options[:log])
+      ctrl = ConsumerCtrl.new(@config)
       exit ctrl.send(@command)
     end
 

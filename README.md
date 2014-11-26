@@ -28,6 +28,23 @@ Set HopHop::Event.receiver either to HopHop::BunnyReceiver.new(:host => x, :port
 
 
 See http://trac.admin.experteer.com/trac/wiki/dev/Messagebus in our wiki.
+### The configuration ###
+In Rails (there is currently just a preforking driver for Rails) create a file config/hop_hop.rb:
+    HopHop.config do
+      driver :rails_prefork,
+             :rails_root => File.expand_path('../environment', __FILE__),
+             :setup => proc { 'do something once when the environment is up' },
+             :start_consumer => proc { 'do something before the consumer is run' },
+             :stop_consumer => proc { 'do something after the consumer has stopped}
+      stdout '/tmp/out' # or stdout proc { Rails.logger }
+      logger proc {Rails.logger}
+      consumer_logger { |consumer| Rails.logger }
+
+      consumer 'MyMassmailerConsumerClass', :role => :mass_mailer
+
+      host 'a hostname', :indexing #you can assign roles to hosts here, then hop_hop will look
+                                   #here and the hostname to figure out what to start
+    end
 
 ### The consumer ###
 

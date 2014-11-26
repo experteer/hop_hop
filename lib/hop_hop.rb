@@ -10,14 +10,14 @@ require "hop_hop/consumer"
 require "hop_hop/suspendable_consumer"
 
 # for start/stop/cronjobs
-require 'hop_hop/consumer_config'
-require 'hop_hop/consumers_config'
+require "hop_hop/drivers/base_driver"
+require 'hop_hop/config'
 require 'hop_hop/consumer_server'
 require 'hop_hop/run_state'
 require 'hop_hop/consumer_bin'
 require 'hop_hop/consumer_server'
 require 'hop_hop/consumer_ctrl'
-
+require 'hop_hop/server_ctrl'
 # stdlib
 require 'drb/drb'
 require 'optparse'
