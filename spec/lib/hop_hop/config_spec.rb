@@ -14,7 +14,7 @@ describe HopHop::Config do
   end
 
   it "should set overrides" do
-    config = HopHop::Config.load(config_name, 'test', log: "override.log", port: 1111)
+    config = HopHop::Config.load(config_name, 'test', :log => "override.log", :port => 1111)
     expect(config.control.port).to eq(1111)
     # TODO: test stdout_filename override
   end
@@ -37,13 +37,13 @@ describe HopHop::Config do
 
   describe "consumers" do
     it "should read the consumers configuration" do
-      consumers = config.consumers.of_role("background")
-      expect(consumers.size).to eq(2)
-      config = consumers[0]
-      expect(config.class_name).to eq('Recruiting::CareerAdapterConsumer')
-      expect(config.name).to eq('recruiting_career_adapter_consumer')
-      expect(config.filename).to eq('recruiting/career_adapter_consumer')
-      expect(config.role).to eq(:background)
+      expect(config.consumers.roles).to eq([:background, :indexing])
+      expect(config.consumers.size).to eq(9)
+      cconfig = config.consumers['Recruiting::CareerAdapterConsumer']
+      expect(cconfig.class_name).to eq('Recruiting::CareerAdapterConsumer')
+      expect(cconfig.name).to eq('recruiting_career_adapter_consumer')
+      expect(cconfig.filename).to eq('recruiting/career_adapter_consumer')
+      expect(cconfig.role).to eq(:background)
     end
 
   end

@@ -54,6 +54,10 @@ module HopHop
         @consumers = {}
       end
 
+      def size
+        @consumers.size
+      end
+
       def add(class_name, options)
         # puts "adding: #{class_name}"
         @consumers[class_name.to_s] = ConsumerConfig.new(class_name, options)
@@ -68,7 +72,7 @@ module HopHop
         each do |_class_name, config|
           res_roles << config.role.to_sym
         end
-        res_roles
+        res_roles.uniq.sort
       end
 
       def each
@@ -214,7 +218,7 @@ module HopHop
       @control.port = overrides[:port] if overrides[:port]
       @driver.stdout_filename{overrides[:log]} if overrides[:log]
 
-      if overrides[:roles].empty?
+      if overrides[:roles].nil? || overrides[:roles].empty?
         @roles = @hosts.roles_of_host(overrides[:hostname])
       else # roles given!
         if overrides[:roles].include?(:all)
