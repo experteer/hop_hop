@@ -1,0 +1,145 @@
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  Exclude:
+    - vendor/**/*
+    - db/schema.rb
+    - db/migrate.old/**/*
+    - db/migrate_slow.old/**/*
+    - tmp/**/*
+    - public/**/*
+    - log/**/*
+    - messages/main/**/*
+    - lib/inventory/**/*
+    - app/models/mail_receiver_selection_filter.rb
+    - config/mail_tool/career_selections_config.rb
+    - config/mail_tool/recruiting_selections_config.rb
+    - db/enumerations/geocodes/geocode_adding.rb
+    - misc/export/job_exports/adscale/deu/sql.rb
+    - misc/export/job_exports/jobseek/chd/sql.rb
+
+FileName:
+  Enabled: false
+  Exclude:
+    - Guardfile
+    - misc/admin/checkLogin/**/*
+    - misc/admin/git/**/*
+
+Documentation:
+  Enabled: false
+MethodLength:
+  Enabled: false
+ClassLength:
+  Enabled: false
+ClassAndModuleChildren:
+  Enabled: false
+ClassVars:
+  Enabled: false
+StringLiterals:
+  Enabled: false
+Style/CollectionMethods:
+  Enabled: false
+Style/PerlBackrefs:
+  Enabled: false
+
+
+# Whitelist cops
+EmptyLinesAroundBody:
+  Enabled: true
+EmptyLines:
+  Enabled: true
+TrailingWhitespace:
+  Enabled: true
+SpaceBeforeBlockBraces:
+  Enabled: true
+SpaceInsideBlockBraces:
+  Enabled: true
+SpaceAroundEqualsInParameterDefault:
+  Enabled: true
+SpaceAfterComma:
+  Enabled: true
+SingleSpaceBeforeFirstArg:
+  Enabled: true
+SpaceInsideHashLiteralBraces:
+  Enabled: true
+SpaceAroundOperators:
+  Enabled: true
+SpaceInsideParens:
+  Enabled: true
+LeadingCommentSpace:
+  Enabled: true
+EmptyLineBetweenDefs:
+  Enabled: true
+IndentationConsistency:
+  Enabled: true
+IndentationWidth:
+  Enabled: true
+BlockEndNewline:
+  Enabled: true
+EmptyLinesAroundAccessModifier:
+  Enabled: true
+BlockAlignment:
+  Enabled: false
+TrailingComma:
+  Enabled: true
+MethodDefParentheses:
+  Enabled: true
+DefWithParentheses:
+  Enabled: true
+AlignArray:
+  Enabled: true
+AlignParameters:
+  Enabled: true
+BracesAroundHashParameters:
+  Enabled: true
+Lint/SpaceBeforeFirstArg:
+  Enabled: true
+Style/Tab:
+  Enabled: true
+SpaceInsideBlockBraces:
+ Enabled: true
+
+# changed config ---------------------------
+
+AlignHash:
+  Enabled: true
+  EnforcedHashRocketStyle: table
+
+HashSyntax:
+  Enabled: true
+  EnforcedStyle: hash_rockets
+
+# LineLength:
+#   Max: 119
+
+AccessModifierIndentation:
+  Enabled: false
+  EnforcedStyle: outdent
+
+MethodDefParentheses:
+  EnforcedStyle: require_parentheses
+
+SpaceBeforeBlockBraces:
+  EnforcedStyle: no_space
+
+SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
+
+SpaceInsideBlockBraces:
+ EnforcedStyle: no_space
+ SupportedStyles:
+   - space
+   - no_space
+ # Valid values are: space, no_space
+ EnforcedStyleForEmptyBraces: no_space
+ # Space between { and |. Overrides EnforcedStyle if there is a conflict.
+ SpaceBeforeBlockParameters: false
+
+
+# http://www.ruby-doc.org/core-2.1.1/Kernel.html#method-i-fail
+SignalException:
+  EnforcedStyle: only_raise
+
+# there are issues in ruby 1.8 with leading dots
+DotPosition:
+  EnforcedStyle: trailing
