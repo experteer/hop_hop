@@ -21,9 +21,8 @@ module HopHop
 
     # @param [String] consumer_class_name name of the consumer class to start (has to have a config)
     # @param [integer] instances how many instances to fire up (not taken from the config)
-    def consumer(consumer_class_name, instances)
+    def consumer(consumer_class_name, required_count_running)
       consumer_config = @config.consumers[consumer_class_name]
-      required_count_running = instances
 
       instance_ids = instances(consumer_config.class_name)
       count_running = instance_ids.size

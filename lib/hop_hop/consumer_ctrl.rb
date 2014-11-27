@@ -8,7 +8,7 @@ module HopHop
 
     def check(testing=true)
       exit_value = 0
-      with_each_consumer do |info|
+      with_each_consumer do |info, _consumer_config|
         exit_value = 1 if info.needs_fix?
         puts info
       end
