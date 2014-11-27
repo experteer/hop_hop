@@ -14,7 +14,7 @@ module HopHop
         end
 
         Process.detach(pid) # so we leave no zombies behind
-        HopHop::Helper.wait_unless(config.control.wait_spinup) { !server_ctrl.alive? } # now wait for it to spin up
+        HopHop::Helper.wait_unless(config.control.wait_spinup){!server_ctrl.alive?} # now wait for it to spin up
         raise "Could not spin up the fork server" unless server_ctrl.alive?
       end
 
@@ -57,6 +57,13 @@ module HopHop
       # TODO: instanciating a new object with config would be better
       def do_setup(config)
         require File.join(config.root.join('config', 'environment'))
+
+        filename = call_hook(:stdout_filename)
+        if filename
+          STDIN.reopen("/dev/null")
+          STDOUT.reopen(filename, "a")
+          STDERR.reopen(STDOUT)
+        end
         puts "starting rails"
         call_hook(:setup)
       end
@@ -66,6 +73,7 @@ module HopHop
       end
 
       def do_stop(config, consumer_config, pid)
+        puts "Stopping: #{pid}"
         cmd = "kill -TERM #{pid}"
         system(cmd)
         # TBD: wait for process to stop
@@ -91,11 +99,13 @@ module HopHop
           Rails.logger
         end
         Rails.logger.info("Starting #{consumer_config.class_name}")
-        consumer_config.class_name.constantize.consume(logger: Rails.logger)
+        consumer_config.class_name.constantize.consume(:logger => Rails.logger)
       end
 
       def call_hook(name)
-        @options[name].call if @options[name]
+        if @options[name]
+          @options[name].respond_to?(:call) ? instance_eval(&@options[name]) : @options[:name]
+        end
       end
     end
   end

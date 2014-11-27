@@ -6,7 +6,7 @@ module HopHop
       @server_ctrl = ServerCtrl.new(config)
     end
 
-    def check(testing = true)
+    def check(testing=true)
       exit_value = 0
       with_each_consumer do |info|
         exit_value = 1 if info.needs_fix?
@@ -44,6 +44,7 @@ module HopHop
 
     alias_method :start, :restart
 
+    # stops any consumer (perhaps move this to the server's finish method)
     def stop
       exit_value = 0
       with_each_consumer do |info, consumer_config|

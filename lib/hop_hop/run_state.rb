@@ -5,9 +5,10 @@ module HopHop
     attr_reader :running_pids
 
     # @option [Integer] :port
-    def initialize(consumer_config, consumer_identifiers)
+    def initialize(consumer_config, consumer_identifiers, instances)
       @config = consumer_config
       @running_pids = consumer_identifiers # doesn't have to be pids but some identifiers
+      @instances = instances # how many instances do we expect?
     end
 
     # just a shortcat to the consumer's name
@@ -17,11 +18,11 @@ module HopHop
     end
 
     def to_s
-      "#{name} : #{count_running}/#{@config.instances} running:#{@running_pids.inspect}"
+      "#{name} : #{count_running}/#{@instances} running:#{@running_pids.inspect}"
     end
 
     def instance_diff
-      @config.instances - count_running
+      @instances - count_running
     end
 
     def needs_fix?

@@ -6,7 +6,7 @@ module HopHop
   class ConsumerServer
     def self.start(config)
       server = new(config)
-      host_port = "#{config.control.host}:#{config.control.port}"
+      host_port = "localhost:#{config.control.port}"
       uri = "druby://#{host_port}"
       DRb.start_service(uri, server)
       config.driver.do_logger(config).info "Consumer server started"
@@ -19,7 +19,7 @@ module HopHop
       @forked = 0
     end
 
-    def consumer(consumer_class_name, instances = nil)
+    def consumer(consumer_class_name, instances=nil)
       consumer_config = @config.consumers[consumer_class_name]
       required_count_running = instances || consumer_config.instances
 
@@ -40,12 +40,14 @@ module HopHop
         when required_count_running < count_running
           1.upto(count_running - required_count_running) do |idx|
             removed += 1
-            @config.driver.do_stop(@config, consumer_config, instance_ids[idx - 1])
+            pid = instance_ids[idx - 1]
+            puts "Stopping Server: #{pid}"
+            @config.driver.do_stop(@config, consumer_config, pid)
           end
         else
           raise "WTF"
       end
-      { started: started, removed: removed }
+      { :started => started, :removed => removed }
     end
 
     # @return [Hash] returns an array identifiers
@@ -54,7 +56,7 @@ module HopHop
       name_regexp = Regexp.new("--identifier #{@config.control.identifier} #{consumer_config.name}")
       tries = 0
       begin
-        running_pids = Sys::ProcTable.ps.select { |proc| proc.cmdline =~ name_regexp }.map(&:pid)
+        running_pids = Sys::ProcTable.ps.select{|proc| proc.cmdline =~ name_regexp}.map(&:pid)
         running_pids.sort
       rescue Errno::ENOENT, Errno::EINVAL, Errno::ESRCH
         tries += 1

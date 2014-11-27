@@ -6,12 +6,12 @@ module HopHop
       @config = config
     end
 
-    def consumer(consumer_config, instances = nil)
+    def consumer(consumer_config, instances=nil)
       server.consumer(consumer_config.class_name, instances)
     end
 
     def run_state(consumer_config)
-      RunState.new(consumer_config, get_runstate(consumer_config))
+      RunState.new(consumer_config, get_runstate(consumer_config), consumer_config.instances_on(@config.roles))
     end
 
     def alive?
@@ -24,7 +24,7 @@ module HopHop
     def stop
       if alive?
         server.finish
-        HopHop::Helper.wait_unless(@config.control.wait_spinup) { alive? } # now wait for it to spin up
+        HopHop::Helper.wait_unless(@config.control.wait_spinup){alive?} # now wait for it to spin up
         raise "Could not stop the server" if alive?
       end
     end
@@ -35,7 +35,7 @@ module HopHop
     end
 
     def server_uri
-      "druby://#{@config.control.host}:#{@config.control.port}"
+      "druby://localhost:#{@config.control.port}"
     end
 
     # @return [Array] returns an array of identifiers

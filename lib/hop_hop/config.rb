@@ -23,9 +23,9 @@ module HopHop
     end
 
     class ControlConfig
-      DEFAULTS = { port: 8787, wait_spinup: 60, host: 'localhost' }
+      DEFAULTS = { :port => 8787, :wait_spinup => 60, :host => 'localhost' }
 
-      attr_reader :port, :identifier, :wait_spinup, :host
+      attr_reader :port, :identifier, :wait_spinup # , :host currently unused, needs more concept
       attr_writer :port
 
       def initialize(env, attributes)
@@ -63,14 +63,12 @@ module HopHop
         @consumers[class_name.to_s]
       end
 
-      def of_role(role)
-        configs = []
-        role = role.to_sym
-
-        each do |class_name, config|
-          configs << config if config.role == role
+      def roles
+        res_roles = []
+        each do |_class_name, config|
+          res_roles << config.role.to_sym
         end
-        configs
+        res_roles
       end
 
       def each
@@ -93,6 +91,10 @@ module HopHop
         @opts[:name] || filename.gsub('/', '_')
       end
 
+      def instances_on(roles)
+        roles.include?(role) ? instances : 0
+      end
+
       def instances
         @opts[:instances] || 1
       end
@@ -110,11 +112,11 @@ module HopHop
       end
 
       def to_hash
-        { filename: filename,
-          class_name: class_name,
-          args: args,
-          name: name,
-          role: role
+        { filename   => filename,
+          class_name => class_name,
+          args       => args,
+          name       => name,
+          role       => role
         }
       end
     end
@@ -139,18 +141,18 @@ module HopHop
       end
 
       def config
-        { control: @control,
-          driver: @driver,
-          consumers: @consumers,
-          hosts: @hosts,
-          root: @root }
+        { :control   => @control,
+          :driver    => @driver,
+          :consumers => @consumers,
+          :hosts     => @hosts,
+          :root      => @root }
       end
 
       def root(filename)
         @root = Pathname.new(filename)
       end
 
-      def control(attributes = nil)
+      def control(attributes=nil)
         if attributes
           @control = ControlConfig.new(@env, attributes)
           @control.validate!
@@ -176,7 +178,7 @@ module HopHop
     end # Reader
 
     # creates a config for an environment
-    def self.load(filename, env, overrides = {})
+    def self.load(filename, env, overrides={})
       env = env.to_s
       config = Reader.read(filename.to_s, env)
       new(env, config, overrides) # no need to map further
@@ -197,18 +199,35 @@ module HopHop
     # what is the root of the project (everything should be relative to this)
     attr_reader :root
 
+    attr_reader :roles
+
     # @params [String] env environment name
     # @param [Hash] options
     # @option overrides [String] :log name of the logfile for stdout
     # @option overrides [Integer] :port port of the hop hop fork server to run
-    def initialize(env, config_hash, overrides = {})
+    def initialize(env, config_hash, overrides={})
       @env = env
       @attributes = config_hash
       @attributes.each_pair do |att, value|
         instance_variable_set("@#{att}", value)
       end
       @control.port = overrides[:port] if overrides[:port]
-      @driver.stdout_filename { root.join(overrides[:log]) } if  overrides[:log]
+      # @driver.stdout_filename { root.join(overrides[:log]) } if  overrides[:log]
+      if overrides[:roles].empty?
+        @roles = @hosts.roles_of_host(overrides[:hostname])
+      else # roles given!
+        if overrides[:roles].include?(:all)
+          if overrides[:roles].size != 1
+            raise "It does not make any sence to give more roles if role 'all' is used."
+          end
+          @roles = @consumers.roles
+        else # roles are given on cmd line
+          unknown_roles = overrides[:roles] - @consumers.roles
+          raise "Unknown roles: #{unknown_roles.map(&:to_s).join(', ')}" unless unknown_roles.empty?
+          @roles = overrides[:roles]
+        end
+      end
+      # puts "Roles:, #{@roles.join(',')}"
     end
   end
 end
