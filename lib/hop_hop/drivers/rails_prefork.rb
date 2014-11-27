@@ -5,6 +5,7 @@ module HopHop
         true
       end
 
+      # TODO: don't depend on server_ctrl
       def start_server(config, server_ctrl)
         pid = Process.fork do
           cmd = "hop_hop server --identifier #{config.control.identifier}"
