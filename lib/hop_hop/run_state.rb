@@ -4,7 +4,9 @@ module HopHop
   class RunState
     attr_reader :running_pids
 
-    # @option [Integer] :port
+    # @param [ConsumerConfig] config
+    # @param [Array] consumer_identifiers an Array of Strings identifying the instances
+    # @param [Integer] instances numer of instances running
     def initialize(consumer_config, consumer_identifiers, instances)
       @config = consumer_config
       @running_pids = consumer_identifiers # doesn't have to be pids but some identifiers
@@ -18,7 +20,7 @@ module HopHop
     end
 
     def to_s
-      "#{name} : #{count_running}/#{@instances} running:#{@running_pids.inspect}"
+      "#{name} #{'*' if needs_fix? }: #{count_running}/#{@instances} running:#{@running_pids.inspect}"
     end
 
     def instance_diff
@@ -32,29 +34,5 @@ module HopHop
     def count_running
       @running_pids.size
     end
-
-    private
-    # TODO: move this where?
-# wait for process list changes only
-#       if not
-#         in testing mode
-#         wait_for_process(required_count_running) unless testing
-#
-#         {:started => started, :removed => removed} # perhaps an object would be better
-#       end
-#
-#     end
-
-#    def wait_for_process(required_count_running)
-#      tries = 0
-#
-#      while tries < PROCESS_MAX_TRIES # max_wait = wait*max_tries (0.2 * 30 = 30 sec)
-#        set_running_pids
-#        break if required_count_running == count_running
-##      $stdout.write "."
-#        sleep PROCESS_WAIT
-#        tries += 1
-#      end
-#    end
   end
 end

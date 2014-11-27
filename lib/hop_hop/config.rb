@@ -212,7 +212,8 @@ module HopHop
         instance_variable_set("@#{att}", value)
       end
       @control.port = overrides[:port] if overrides[:port]
-      # @driver.stdout_filename { root.join(overrides[:log]) } if  overrides[:log]
+      @driver.stdout_filename{overrides[:log]} if overrides[:log]
+
       if overrides[:roles].empty?
         @roles = @hosts.roles_of_host(overrides[:hostname])
       else # roles given!

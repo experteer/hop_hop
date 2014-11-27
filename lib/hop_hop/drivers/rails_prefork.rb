@@ -59,6 +59,8 @@ module HopHop
         require File.join(config.root.join('config', 'environment'))
 
         filename = call_hook(:stdout_filename)
+        puts "stdout to: #{filename} #{Rails.root}"
+
         if filename
           STDIN.reopen("/dev/null")
           STDOUT.reopen(filename, "a")
@@ -76,8 +78,29 @@ module HopHop
         puts "Stopping: #{pid}"
         cmd = "kill -TERM #{pid}"
         system(cmd)
-        # TBD: wait for process to stop
-        pid
+
+        pid_check = true
+        tries = 0
+        name_regexp = Regexp.new("--identifier #{config.control.identifier} #{consumer_config.name}")
+        res = pid
+
+        while pid_check
+          running_pids = Sys::ProcTable.ps.select{|proc| proc.cmdline =~ name_regexp && proc.pid == pid}
+          if running_pids.empty?
+            pid_check = false
+          else
+            puts "Waiting for stop: pid: #{pid} consumer: #{ consumer_config.name}"
+            tries += 1
+            sleep(0.1 * tries) # sleeping .1,.2,.3,.4,.5
+            if tries > 10
+              pid_check = false
+              res = nil
+              puts "Stopping pid failed: #{pid}"
+            end
+          end
+        end
+
+        res
       end
 
       def do_start(config, consumer_config)
@@ -88,6 +111,20 @@ module HopHop
           run(consumer_config)
         end
         pid
+      end
+
+      def instance_ids(config, consumer_config)
+        name_regexp = Regexp.new("--identifier #{config.control.identifier} #{consumer_config.name}")
+        tries = 0
+        begin
+          running_pids = Sys::ProcTable.ps.select{|proc| proc.cmdline =~ name_regexp}.map(&:pid)
+          running_pids.sort
+        rescue Errno::ENOENT, Errno::EINVAL, Errno::ESRCH
+          tries += 1
+          sleep(0.1 * tries)
+          retry unless tries > 3
+          nil
+        end
       end
 
       private
@@ -104,7 +141,7 @@ module HopHop
 
       def call_hook(name)
         if @options[name]
-          @options[name].respond_to?(:call) ? instance_eval(&@options[name]) : @options[:name]
+          @options[name].respond_to?(:call) ? instance_eval(&@options[name]) : @options[name]
         end
       end
     end

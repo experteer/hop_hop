@@ -7,7 +7,8 @@ module HopHop
     end
 
     def consumer(consumer_config, instances=nil)
-      server.consumer(consumer_config.class_name, instances)
+      total_instances = instances || consumer_config.instances_on(@config.roles)
+      server.consumer(consumer_config.class_name,  total_instances)
     end
 
     def run_state(consumer_config)

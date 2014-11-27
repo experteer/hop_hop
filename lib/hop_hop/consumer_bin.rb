@@ -44,7 +44,7 @@ module HopHop
     private
 
     def options_parser
-      @options ||= { :port => DEFAULT_PORT, :log => "hop_hop" }
+      @options ||= {}
       @options_parser ||= OptionParser.new do |opts|
         opts.banner = "Usage: hop_hop --help|--version
        hop_hop (start|restart|stop|adjust|check) (--config|--port)"

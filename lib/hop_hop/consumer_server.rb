@@ -19,9 +19,11 @@ module HopHop
       @forked = 0
     end
 
-    def consumer(consumer_class_name, instances=nil)
+    # @param [String] consumer_class_name name of the consumer class to start (has to have a config)
+    # @param [integer] instances how many instances to fire up (not taken from the config)
+    def consumer(consumer_class_name, instances)
       consumer_config = @config.consumers[consumer_class_name]
-      required_count_running = instances || consumer_config.instances
+      required_count_running = instances
 
       instance_ids = instances(consumer_config.class_name)
       count_running = instance_ids.size
@@ -31,17 +33,19 @@ module HopHop
 
       case
         when required_count_running == count_running
+          puts "Consumer no fix:  #{consumer_config.name} (#{instances}/#{consumer_config.instances}/#{count_running})"
           return nil
         when required_count_running > count_running
+          puts "Consumer need starts:  #{consumer_config.name} (#{instances}/#{consumer_config.instances}/#{count_running})"
           1.upto(required_count_running - count_running) do
             started += 1
             @config.driver.do_start(@config, consumer_config)
           end
         when required_count_running < count_running
+          puts "Consumer need stops:  #{consumer_config.name} (#{instances}/#{consumer_config.instances}/#{count_running})"
           1.upto(count_running - required_count_running) do |idx|
             removed += 1
             pid = instance_ids[idx - 1]
-            puts "Stopping Server: #{pid}"
             @config.driver.do_stop(@config, consumer_config, pid)
           end
         else
@@ -53,17 +57,7 @@ module HopHop
     # @return [Hash] returns an array identifiers
     def instances(consumer_class_name)
       consumer_config = @config.consumers[consumer_class_name]
-      name_regexp = Regexp.new("--identifier #{@config.control.identifier} #{consumer_config.name}")
-      tries = 0
-      begin
-        running_pids = Sys::ProcTable.ps.select{|proc| proc.cmdline =~ name_regexp}.map(&:pid)
-        running_pids.sort
-      rescue Errno::ENOENT, Errno::EINVAL, Errno::ESRCH
-        tries += 1
-        sleep(0.1 * tries)
-        retry unless tries > 3
-        nil
-      end
+      @config.driver.instance_ids(@config, consumer_config)
     end
 
     def ping
