@@ -32,16 +32,16 @@ module HopHop
 
       case
         when required_count_running == count_running
-          puts "Consumer no fix:  #{consumer_config.name} (#{instances}/#{consumer_config.instances}/#{count_running})"
+          puts "Consumer no fix:  #{consumer_config.name} (#{required_count_running}/#{consumer_config.instances}/#{count_running})"
           return nil
         when required_count_running > count_running
-          puts "Consumer need starts:  #{consumer_config.name} (#{instances}/#{consumer_config.instances}/#{count_running})"
+          puts "Consumer need starts:  #{consumer_config.name} (#{required_count_running}/#{consumer_config.instances}/#{count_running})"
           1.upto(required_count_running - count_running) do
             started += 1
             @config.driver.do_start(@config, consumer_config)
           end
         when required_count_running < count_running
-          puts "Consumer need stops:  #{consumer_config.name} (#{instances}/#{consumer_config.instances}/#{count_running})"
+          puts "Consumer need stops:  #{consumer_config.name} (#{required_count_running}/#{consumer_config.instances}/#{count_running})"
           1.upto(count_running - required_count_running) do |idx|
             removed += 1
             pid = instance_ids[idx - 1]

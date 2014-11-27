@@ -32,7 +32,7 @@ module HopHop
     def restart
       exit_value = 0
 
-      @server_ctrl.stop
+      stop
       with_each_consumer do |info, consumer_config|
         @server_ctrl.consumer(consumer_config) # start the configured instances
         info = @server_ctrl.run_state(consumer_config)

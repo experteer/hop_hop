@@ -8,6 +8,7 @@ module HopHop
 
     def consumer(consumer_config, instances=nil)
       total_instances = instances || consumer_config.instances_on(@config.roles)
+      ensure_server
       server.consumer(consumer_config.class_name,  total_instances)
     end
 

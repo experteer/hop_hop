@@ -59,7 +59,7 @@ module HopHop
         require File.join(config.root.join('config', 'environment'))
 
         filename = call_hook(:stdout_filename)
-        puts "stdout to: #{filename} #{Rails.root}"
+        # puts "stdout to: #{filename} #{Rails.root}"
 
         if filename
           STDIN.reopen("/dev/null")
