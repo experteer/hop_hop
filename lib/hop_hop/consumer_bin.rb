@@ -54,7 +54,7 @@ module HopHop
       @options ||= {}
       @options_parser ||= OptionParser.new do |opts|
         opts.banner = "Usage: hop_hop --help|--version
-       hop_hop (start|restart|stop|adjust|check) (--config|--port)"
+       hop_hop <options> (start|restart|stop|adjust|check)"
 
         opts.separator ""
         opts.separator "options:"
@@ -88,7 +88,6 @@ module HopHop
           help(STDOUT)
           exit 0
         end
-
       end
     end
 
