@@ -12,7 +12,14 @@ module HopHop
     end
 
     def initialize(argv)
-      options_parser.parse!(argv)
+      begin
+        options_parser.parse!(argv)
+      rescue OptionParser::ParseError => err
+        STDERR.puts(err.message)
+        help(STDERR)
+        exit(1)
+      end
+
       @command = ARGV.shift
       unless KNOWN_COMMANDS.include?(@command)
         STDERR.puts "command unknown: '#{@command}' must be one of #{KNOWN_COMMANDS.join(", ")}."
@@ -31,7 +38,7 @@ module HopHop
                               :hostname => @options[:hostname] || `hostname`.strip
         )
       else
-        $STDERR.puts "no config file given"
+        STDERR.puts "no config file given"
         exit 1
       end
     end
@@ -78,11 +85,15 @@ module HopHop
         end
 
         opts.on('--help', "print this help") do
-          puts @options_parser
+          help(STDOUT)
           exit 0
         end
 
       end
+    end
+
+    def help(io)
+      io.puts @options_parser
     end
   end
 end
