@@ -109,16 +109,22 @@ module HopHop
         require consumer_config.filename
         # run the consumer and give it a logger
         if @options[:consumer_logger]
-          ActiveRecord::Base.logger = Rails.logger = @options[:consumer_logger].call(consumer_config)
+          ActiveRecord::Base.logger = Rails.logger = ThreadLogger.new
           Rails.logger
         end
-        Rails.logger.info("Starting #{consumer_config.class_name}")
 
         consumer_thread = Thread.new do
+          # workaround to enable one distinct logger per consumer
+          ThreadGroup.new.add(Thread.current)
+          Thread.current.group.instance_variable_set(:@hophop_consumer_logger, @options[:consumer_logger].call(consumer_config))
+
+          Rails.logger.info("Starting #{consumer_config.class_name}")
+
           puts "#{consumer_config.class_name} thread #{Thread.current} forked"
           consumer_config.class_name.constantize.consume(:logger => Rails.logger)
         end
         consumer_threadgroups[consumer_config.name].push(consumer_thread)
+
         consumer_thread.instance_variable_get :@thread_id
       end
 
@@ -138,10 +144,18 @@ module HopHop
           @threadgroups[consumer_name].keep_if{|thread| thread.alive?}
         end
       end
+
+      class ThreadLogger
+        def initialize
+          @std_logger = Rails.logger
+        end
+
+        def method_missing(sym, *args, &block)
+           logger = Thread.current.group.instance_variable_get(:@hophop_consumer_logger) || @std_logger
+           logger.send(sym, *args, &block)
+        end
+      end
     end
-
-
-
   end
 end
 
