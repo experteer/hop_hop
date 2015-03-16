@@ -10,7 +10,11 @@ module HopHop
       uri = "druby://#{host_port}"
       DRb.start_service(uri, server)
       config.driver.do_logger(config).info "Consumer server started"
-      DRb.thread.join
+      # workaround: joining main thread in rubinius crashes signal handling
+      # DRb.thread.join
+      while DRb.primary_server
+        sleep 1
+      end
     end
 
     def initialize(config)
