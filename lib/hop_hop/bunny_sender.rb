@@ -20,39 +20,37 @@ module HopHop
 
       @options = defaults.merge(options)
       @exchange_name = options[:events] || 'events'
-      @reset_mutex = Mutex.new
+      @channel_mutex = Monitor.new
       exchange
     end
 
     # @param [Object] data is an object that responds to to_json
     # @param [Hash] meta a hash of meta informations (see HopHop::Event#meta)
     def publish(data, meta)
-      meta = meta.merge(expiration: options[:ttl]) if options[:ttl]
-      tries = 3
-      begin
-        exchange.publish(data.to_json, meta)
-        # I have to rescue these and retry as bunny's autoreconnect sometimes simply doesn't work
-        # TBD: logging this would be good
-      rescue Bunny::ConnectionClosedError, Bunny::ChannelAlreadyClosed
-        sleep 0.3
-        if @reset_mutex.try_lock
+      @channel_mutex.synchronize do
+        meta = meta.merge(expiration: options[:ttl]) if options[:ttl]
+        tries = 3
+        begin
+          exchange.publish(data.to_json, meta)
+            # I have to rescue these and retry as bunny's autoreconnect sometimes simply doesn't work
+            # TBD: logging this would be good
+        rescue Bunny::ConnectionClosedError, Bunny::ChannelAlreadyClosed
+          sleep 0.3
           tries -= 1
           reset
-          @reset_mutex.unlock
           tries >= 0 ? retry : raise
-        else
-          sleep 1
-          retry
         end
       end
     end
 
-    private
-
     def reset
-      @exchange = @channel = @connection = nil
-      exchange
+      @channel_mutex.synchronize do
+        @exchange = @channel = @connection = nil
+        exchange
+      end
     end
+
+    private
 
     def exchange
       @exchange ||= channel.topic(@exchange_name, durable: true)
