@@ -20,7 +20,7 @@ module HopHop
         exit(1)
       end
 
-      @command = ARGV.shift
+      @command = argv.shift
       unless KNOWN_COMMANDS.include?(@command)
         STDERR.puts "command unknown: '#{@command}' must be one of #{KNOWN_COMMANDS.join(", ")}."
         STDERR.puts options_parser
