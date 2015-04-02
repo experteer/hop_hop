@@ -21,7 +21,6 @@ module HopHop
       @options = defaults.merge(options)
       @exchange_name = options[:events] || 'events'
       @channel_mutex = Monitor.new
-      exchange
     end
 
     # @param [Object] data is an object that responds to to_json
