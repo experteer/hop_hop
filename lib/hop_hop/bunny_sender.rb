@@ -2,6 +2,9 @@ module HopHop
   # This sends an event through Bunny
   # it jsons the data and passes the meta header as is
   class BunnySender
+
+    RETRIES_AFTER_FAILURE = 3
+
     attr_reader :options
 
     # @param [Hash] options
@@ -28,16 +31,16 @@ module HopHop
     def publish(data, meta)
       @channel_mutex.synchronize do
         meta = meta.merge(expiration: options[:ttl]) if options[:ttl]
-        tries = 3
+        remaining_tries = RETRIES_AFTER_FAILURE
         begin
           exchange.publish(data.to_json, meta)
             # I have to rescue these and retry as bunny's autoreconnect sometimes simply doesn't work
             # TBD: logging this would be good
         rescue Bunny::ConnectionClosedError, Bunny::ChannelAlreadyClosed
           sleep 0.3
-          tries -= 1
+          remaining_tries -= 1
           reset
-          tries >= 0 ? retry : raise
+          remaining_tries > 0 ? retry : raise
         end
       end
     end
