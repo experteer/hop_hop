@@ -112,13 +112,13 @@ module HopHop
     # @return [Bunny::Session] active Bunny session
     def connection
       return @connection if defined?(@connection)
-      @connection = Bunny.new(Helper.slice_hash(@options, :host, :port, :virtual_host, :heartbeat, 
+      @connection = Bunny.new(Helper.slice_hash(@options, :host, :port, :virtual_host, :heartbeat,
                                                 :automatically_recover,:user,:password))
       @connection.start
       @connection
     end
 
-  private
+    private
 
     def metadata(delivery_info, properties)
       {
@@ -149,6 +149,14 @@ Consumer failed (#{strategy}): #{consumer.name} #{error.message}
 #{event.inspect}
 EOF
       normal_exit
+    rescue StandardError => error
+      logger.fatal(<<-EOF)
+Fatal error in on_error method, consumer exiting:
+#{error.inspect}
+#{error.backtrace.join("\n")}
+#{event.inspect}
+EOF
+      on_error_exit(delivery_info)
     end
 
     # acknowledge and go on
