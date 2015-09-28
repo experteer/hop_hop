@@ -27,6 +27,7 @@ module HopHop
     # @param [integer] instances how many instances to fire up (not taken from the config)
     def consumer(consumer_class_name, required_count_running)
       consumer_config = @config.consumers[consumer_class_name]
+      return unless consumer_config
 
       instance_ids = instances(consumer_config.class_name)
       count_running = instance_ids.size
@@ -60,6 +61,7 @@ module HopHop
     # @return [Hash] returns an array identifiers
     def instances(consumer_class_name)
       consumer_config = @config.consumers[consumer_class_name]
+      return [] unless consumer_config
       @config.driver.instance_ids(@config, consumer_config)
     end
 
