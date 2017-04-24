@@ -4,7 +4,7 @@ HopHop is our (experteer's) small abstraction layer on top of Bunny to access ou
 
 ## Development
 
-The code is at http://gitlab.experteer.com/experteer/hop_hop/tree/master
+The code is at https://github.com/experteer/hop_hop
 
 ## Installation
 
@@ -22,10 +22,13 @@ Or install it yourself as:
     $ gem install hop_hop
 
 ## Usage
+In Testing:
+    HopHop::Event.sender = HopHop::TestSender.new()
+    HopHop::Event.receiver = HopHop::TestReceiver.new()
 
-Set HopHop::Event.sender either to HopHop::BunnySender.new(:host => x, :port => y) or to HopHop::TestSender.new() in case of testing.
-Set HopHop::Event.receiver either to HopHop::BunnyReceiver.new(:host => x, :port => y) or to HopHop::TestReceiver.new() in case of testing.
-
+in non testing environments:
+    HopHop::Event.sender= HopHop::BunnySender.new(:host => x, :port => y)
+    HopHop::Event.receiver = HopHop::BunnyReceiver.new(:host => x, :port => y)
 
 See http://trac.admin.experteer.com/trac/wiki/dev/Messagebus in our wiki.
 ### The configuration ###
