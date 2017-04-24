@@ -111,6 +111,7 @@ module HopHop
           call_hook(:after_fork)
           run(consumer_config)
         end
+        Process.detach(pid) # so we leave no zombies behind
         pid
       end
 
