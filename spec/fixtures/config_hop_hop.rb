@@ -1,22 +1,36 @@
-class TestHooks
-  attr_reader :options, :cmd_before, :cmd_after
+# the controll server and how to reach it
+control :identifier  => "hop_hop_SOMETESTING82348",
+        :wait_spinup => 10
 
-  def setup_fork(options)
-    @options = options
+root File.expand_path('../environment', __FILE__)
+
+driver :rails_prefork do
+
+  setup do |config|
+    # require 'pjpp/forking'
+    #::Pjpp::Forking.setup_fork # deconnect and reconnect persistent connections
+    # $: << root.join('event_consumers') # add consumers to the path so we can require them
   end
 
-  def before_fork(cmd)
-    @cmd_before = cmd
-  end
-
-  def after_fork(cmd)
-    @cmd_after = cmd
-  end
+  before_fork # { ::Pjpp::Forking.before_fork }
+  after_fork # { ::Pjpp::Forking.after_fork }
+  # in defaults
+  consumer_logger do |consumer| Rails.logger end
+  stdout_filename{root.join('log', 'hop_hop_prefork_stdout.log')}
+  logger{Rails.logger}
 end
-self.hop_hop_config = {
-  :server_config => { :hooks => TestHooks.new, :log => "hop_hop.log" },
-  :port          => 8786,
-  :identifier    => "hop_hop_WEORISDFKLwmroiwequ",
-  :wait_spinup   => 10,
-  :env           => { "test" => [] }
-}
+
+consumer 'Career::JobIndexingConsumer', :role => :indexing
+consumer 'Career::RecruiterIndexingConsumer', :role => :indexing
+consumer 'Recruiting::AccountNoteIndexingConsumer', :role => :indexing
+consumer 'Recruiting::CandidateBookmarkIndexingConsumer', :role => :indexing
+consumer 'Recruiting::CandidateIndexingConsumer', :role => :indexing
+consumer 'Recruiting::ContactIndexingConsumer', :role => :indexing
+consumer 'Recruiting::JobViewIndexingConsumer', :role => :indexing
+
+consumer 'Recruiting::CareerAdapterConsumer', :role => :background
+consumer 'Ja::AssemblyLineConsumer', :role => :background
+
+# this gives the system a hint what to start on witch node
+host 'dietrich', :role => :indexing
+host 'jakob', :role => :background

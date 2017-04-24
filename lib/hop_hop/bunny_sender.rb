@@ -2,6 +2,9 @@ module HopHop
   # This sends an event through Bunny
   # it jsons the data and passes the meta header as is
   class BunnySender
+
+    RETRIES_AFTER_FAILURE = 3
+
     attr_reader :options
 
     # @param [Hash] options
@@ -16,34 +19,40 @@ module HopHop
 
     def initialize(options = {})
       defaults = { host: 'localhost', port: 5672, exchange: 'events', user: 'guest', password: 'guest',
-                  heartbeat: :server, automatically_recover: true, ttl: nil }
+                   heartbeat: :server, automatically_recover: true, ttl: nil }
 
       @options = defaults.merge(options)
       @exchange_name = options[:events] || 'events'
+      @channel_mutex = Monitor.new
     end
 
     # @param [Object] data is an object that responds to to_json
     # @param [Hash] meta a hash of meta informations (see HopHop::Event#meta)
     def publish(data, meta)
-      meta = meta.merge(expiration: options[:ttl]) if options[:ttl]
-      tries = 3
-      begin
-        exchange.publish(data.to_json, meta)
-        # I have to rescue these and retry as bunny's autoreconnect sometimes simply doesn't work
-        # TBD: logging this would be good
-      rescue Bunny::ConnectionClosedError, Bunny::ChannelAlreadyClosed
-        tries -= 1
-        sleep 0.3
-        reset
-        tries >= 0 ? retry : raise
+      @channel_mutex.synchronize do
+        meta = meta.merge(expiration: options[:ttl]) if options[:ttl]
+        remaining_tries = RETRIES_AFTER_FAILURE
+        begin
+          exchange.publish(data.to_json, meta)
+            # I have to rescue these and retry as bunny's autoreconnect sometimes simply doesn't work
+            # TBD: logging this would be good
+        rescue Bunny::ConnectionClosedError, Bunny::ChannelAlreadyClosed
+          sleep 0.3
+          remaining_tries -= 1
+          reset
+          remaining_tries > 0 ? retry : raise
+        end
+      end
+    end
+
+    def reset
+      @channel_mutex.synchronize do
+        @exchange = @channel = @connection = nil
+        exchange
       end
     end
 
     private
-
-    def reset
-      @exchange = @channel = @connection = nil
-    end
 
     def exchange
       @exchange ||= channel.topic(@exchange_name, durable: true)
@@ -55,8 +64,8 @@ module HopHop
 
     def connection
       return @connection if @connection
-      @connection = Bunny.new(Helper.slice_hash(options, :host, :port, :user, :password, :heartbeat, :automatically_recover))
-      @connection.start
+      @connection = Bunny.new(Helper.slice_hash(options, :host, :port, :user, :password, :heartbeat, :automatically_recover)).start
     end
+
   end
 end

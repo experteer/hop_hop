@@ -12,8 +12,15 @@ module HopHop
     end
 
     def initialize(argv)
-      options_parser.parse!(argv)
-      @command = ARGV.shift
+      begin
+        options_parser.parse!(argv)
+      rescue OptionParser::ParseError => err
+        STDERR.puts(err.message)
+        help(STDERR)
+        exit(1)
+      end
+
+      @command = argv.shift
       unless KNOWN_COMMANDS.include?(@command)
         STDERR.puts "command unknown: '#{@command}' must be one of #{KNOWN_COMMANDS.join(", ")}."
         STDERR.puts options_parser
@@ -21,25 +28,33 @@ module HopHop
         exit(1)
       end
 
-      @selected_env = ENV["HOPHOP_CTRL_ENV"] || ENV["RAILS_ENV"] || "development"
+      @selected_env = ENV["HOPHOP_CTRL_ENV"] || ENV["RAILS_ENV"] || ENV["RACK_ENV"] || ENV["RUBY_ENV"] || "development"
 
       if options[:config_file]
-        @consumer_configs = ConsumersConfig.load(options[:config_file], @selected_env)
+        @config = Config.load(options[:config_file], @selected_env,
+                              :port     => @options[:port],
+                              :log      => @options[:log],
+                              :roles    => (@options[:roles] || []).map(&:to_sym),
+                              :hostname => @options[:hostname] || `hostname`.strip
+        )
+      else
+        STDERR.puts "no config file given"
+        exit 1
       end
     end
 
     def run
-      ctrl = ConsumerCtrl.new(@consumer_configs, :port => @options[:port], :log => @options[:log])
+      ctrl = ConsumerCtrl.new(@config)
       exit ctrl.send(@command)
     end
 
-  private
+    private
 
     def options_parser
-      @options ||= { :port => DEFAULT_PORT, :log => "hop_hop" }
+      @options ||= {}
       @options_parser ||= OptionParser.new do |opts|
         opts.banner = "Usage: hop_hop --help|--version
-       hop_hop (start|restart|stop|adjust|check) (--config|--port)"
+       hop_hop <options> (start|restart|stop|adjust|check)"
 
         opts.separator ""
         opts.separator "options:"
@@ -56,17 +71,28 @@ module HopHop
           @options[:log] = file
         end
 
+        opts.on('-r', '--roles a,b,c', Array, "Which roles to fire up if not given the roles will be determined from the host configuration in the config file. Role 'all' will start everything.") do |roles|
+          @options[:roles] = roles
+        end
+
+        opts.on('-h', '--host HOSTNAME', String, "Change the hostname to simulate what would happen on a given host. Default ist the result of the 'hostname' command.") do |hostname|
+          @options[:hostname] = hostname
+        end
+
         opts.on('--version', "printing the version and exits") do
           puts HopHop::VERSION
           exit 0
         end
 
         opts.on('--help', "print this help") do
-          puts @options_parser
+          help(STDOUT)
           exit 0
         end
-
       end
+    end
+
+    def help(io)
+      io.puts @options_parser
     end
   end
 end
