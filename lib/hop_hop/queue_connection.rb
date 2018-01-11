@@ -23,7 +23,7 @@ module HopHop
       reset_exit_loop
       normal_exit = true
       begin
-        queue.subscribe(:block => true, :ack => true) do |delivery_info, properties, body|
+        queue.subscribe(:block => true, :manual_ack => true) do |delivery_info, properties, body|
           begin
             event = call_consumer(delivery_info, properties, body)
           rescue Object => err
@@ -32,7 +32,7 @@ module HopHop
             normal_exit = handle_error(event, delivery_info, err)
           end
 
-          delivery_info.consumer.cancel if exit_loop?
+          cancel(delivery_info) if exit_loop?
         end
       rescue Interrupt
         logger.info("Consumer terminated (interrupt): #{consumer.name} ")
@@ -44,6 +44,11 @@ module HopHop
       end
 
       normal_exit
+    end
+
+    def cancel(delivery_info)
+      delivery_info.channel.work_pool.shutdown(false)
+      delivery_info.consumer.cancel
     end
 
     def call_consumer(delivery_info, properties, body)
@@ -112,7 +117,7 @@ module HopHop
     # @return [Bunny::Session] active Bunny session
     def connection
       return @connection if defined?(@connection)
-      @connection = Bunny.new(Helper.slice_hash(@options, :host, :port, :virtual_host, :heartbeat, 
+      @connection = Bunny.new(Helper.slice_hash(@options, :host, :port, :virtual_host, :heartbeat,
                                                 :automatically_recover,:user,:password))
       @connection.start
       @connection
@@ -186,7 +191,7 @@ EOF
     # Acknowledge message
     # don't acknowledge other older unack'ed messages
     def acknowledge_message(delivery_info)
-      channel.ack(delivery_info.delivery_tag)
+      channel.acknowledge(delivery_info.delivery_tag, false)
     end
 
     attr_reader :exit_loop
