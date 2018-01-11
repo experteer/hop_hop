@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop", "0.26.0"
   spec.add_development_dependency "geminabox-release"
 
-  spec.add_dependency "bunny", "1.3.1"
+  spec.add_dependency "bunny", '~> 2.7', '>= 2.7.2'
   spec.add_dependency "sys-proctable", ">=0.9.0"
 
 end
